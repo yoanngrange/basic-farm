@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="dashboard.newListing">New listing</title>
+  <script type="module" src="/src/pages/listing-new.js"></script>
+</head>
+<body>
+  <nav class="container">
+    <ul><li><strong data-i18n="site.title">Ag Jobs</strong></li></ul>
+    <ul><li><a href="/dashboard.html" data-i18n="dashboard.title">Dashboard</a></li></ul>
+  </nav>
+
+  <main class="container" style="max-width: 640px;">
+    <h1 id="page-title" data-i18n="dashboard.newListing">New listing</h1>
+    <form id="listing-form">
+      <label>
+        <span data-i18n="form.farmLabel">Farm</span>
+        <select name="farmId" id="farm-select" required></select>
+      </label>
+      <label>
+        <span data-i18n="form.listingTitleLabel">Title</span>
+        <input type="text" name="title" required maxlength="200" />
+      </label>
+      <label>
+        <span data-i18n="form.descriptionLabel">Description</span>
+        <textarea name="description" required rows="6"></textarea>
+      </label>
+      <div class="grid">
+        <label>
+          <span data-i18n="form.languageLabel">Listing language</span>
+          <select name="language" required>
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
+            <option value="it">Italiano</option>
+            <option value="pt">Português</option>
+          </select>
+        </label>
+        <label>
+          <span data-i18n="form.categoryLabel">Category</span>
+          <select name="categoryId" id="category-select"></select>
+        </label>
+      </div>
+      <div class="grid">
+        <label>
+          <span data-i18n="form.startDateLabel">Start date (optional)</span>
+          <input type="date" name="startDate" />
+        </label>
+        <label>
+          <span data-i18n="form.durationValueLabel">Duration</span>
+          <input type="number" name="durationValue" min="1" />
+        </label>
+        <label>
+          <span data-i18n="form.durationUnitLabel">Unit</span>
+          <select name="durationUnit">
+            <option value="day" data-i18n="durationUnit.day">day</option>
+            <option value="week" data-i18n="durationUnit.week">week</option>
+            <option value="month" data-i18n="durationUnit.month">month</option>
+            <option value="season" data-i18n="durationUnit.season">season</option>
+          </select>
+        </label>
+      </div>
+      <p class="error-message" id="error" hidden></p>
+      <button type="submit" data-i18n="form.submit">Save</button>
+      <a href="/dashboard.html" role="button" class="secondary" data-i18n="form.cancel">Cancel</a>
+    </form>
+  </main>
+</body>
+</html>

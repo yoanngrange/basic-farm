@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="auth.registerTitle">Create your farmer account</title>
+  <script type="module" crossorigin src="/assets/register-F3diXwFP.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/auth-Wr5UMbGd.js">
+  <link rel="modulepreload" crossorigin href="/assets/api-Ca16Xt94.js">
+  <link rel="stylesheet" crossorigin href="/assets/auth-Cxy5ob1T.css">
+</head>
+<body>
+  <main class="container" style="max-width: 480px; margin-top: 3rem;">
+    <h1 data-i18n="auth.registerTitle">Create your farmer account</h1>
+    <form id="register-form">
+      <div class="grid">
+        <label>
+          <span data-i18n="auth.firstName">First name</span>
+          <input type="text" name="firstName" required autocomplete="given-name" />
+        </label>
+        <label>
+          <span data-i18n="auth.lastName">Last name</span>
+          <input type="text" name="lastName" required autocomplete="family-name" />
+        </label>
+      </div>
+      <label>
+        <span data-i18n="auth.email">Email</span>
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>
+        <span data-i18n="auth.phone">Phone (optional)</span>
+        <input type="tel" name="phone" autocomplete="tel" />
+      </label>
+      <label>
+        <span data-i18n="auth.password">Password</span>
+        <input type="password" name="password" required minlength="8" autocomplete="new-password" />
+      </label>
+      <p class="error-message" id="error" hidden></p>
+      <button type="submit" data-i18n="auth.registerButton">Create account</button>
+    </form>
+    <p><span data-i18n="auth.hasAccount">Already have an account?</span> <a href="/login.html" data-i18n="nav.login">Log in</a></p>
+  </main>
+</body>
+</html>

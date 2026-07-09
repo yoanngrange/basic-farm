@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /login.html
+Disallow: /register.html
+Disallow: /dashboard.html
+Disallow: /dashboard-jobs.html
+Disallow: /listing-new.html
+Sitemap: https://example.com/sitemap.xml

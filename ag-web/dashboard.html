@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="dashboard.title">Dashboard</title>
+  <script type="module" src="/src/pages/dashboard.js"></script>
+</head>
+<body>
+  <nav class="container">
+    <ul><li><strong data-i18n="site.title">Ag Jobs</strong></li></ul>
+    <ul><li><a href="#" id="logout-link" data-i18n="nav.logout">Log out</a></li></ul>
+  </nav>
+
+  <main class="container">
+    <h1 data-i18n="dashboard.title">Dashboard</h1>
+    <p>Pick a module to manage:</p>
+    <div class="grid" id="module-grid">
+      <article>
+        <header><strong>Jobs</strong></header>
+        <p>Post and manage farm job listings, view candidate contacts.</p>
+        <a href="/dashboard-jobs.html" role="button">Open</a>
+      </article>
+      <article aria-disabled="true">
+        <header><strong>Machinery</strong></header>
+        <p>Manage farm equipment and machinery.</p>
+        <button disabled>Coming soon</button>
+      </article>
+      <article aria-disabled="true">
+        <header><strong>Invoices</strong></header>
+        <p>Track invoices and payments.</p>
+        <button disabled>Coming soon</button>
+      </article>
+    </div>
+    <div class="grid">
+      <article aria-disabled="true">
+        <header><strong>Clients</strong></header>
+        <p>Manage client relationships.</p>
+        <button disabled>Coming soon</button>
+      </article>
+      <article aria-disabled="true">
+        <header><strong>Plots</strong></header>
+        <p>Track fields and plots.</p>
+        <button disabled>Coming soon</button>
+      </article>
+      <article aria-disabled="true">
+        <header><strong>Weather</strong></header>
+        <p>Weather forecasts for your parcels.</p>
+        <button disabled>Coming soon</button>
+      </article>
+    </div>
+  </main>
+</body>
+</html>

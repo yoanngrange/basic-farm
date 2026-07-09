@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  repository_dispatch:
+    types: [listing-changed]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (CSR pages via Vite + SSG pages via generate-static.mjs)
+        run: npm run build
+        env:
+          # Must point at the deployed ag-api instance (Clever Cloud URL),
+          # not localhost — this value is baked into every generated page
+          # and into the CSR bundles at build time.
+          VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          # Public Turnstile site key — safe to store as a repo secret or
+          # even a plain repo variable, it is not sensitive. If unset, the
+          # reveal-contact button is simply omitted (see ag-web README).
+          TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
