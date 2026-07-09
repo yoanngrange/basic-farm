@@ -1,1 +1,0 @@
-import{l as o,a as s,r as i,c as a}from"./auth-Wr5UMbGd.js";async function l(){const{t:e,locale:n}=await o();document.documentElement.lang=n,s(e),i(n)&&document.getElementById("logout-link").addEventListener("click",t=>{t.preventDefault(),a(),window.location.href="/login.html"})}l();
