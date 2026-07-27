@@ -1,4 +1,5 @@
 const env = require("../config/env");
+const logger = require("./logger");
 
 /**
  * Verifies a Cloudflare Turnstile token server-side. This is the only
@@ -26,6 +27,9 @@ async function verifyTurnstileToken(token, remoteip) {
     body,
   });
   const data = await res.json();
+  if (data.success !== true) {
+    logger.warn({ errorCodes: data["error-codes"] }, "Turnstile verification failed");
+  }
   return data.success === true;
 }
 
