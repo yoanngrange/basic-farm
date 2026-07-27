@@ -12,7 +12,9 @@ module.exports = {
   port: parseInt(process.env.PORT || "3000", 10),
   nodeEnv: process.env.NODE_ENV || "development",
   isProd: (process.env.NODE_ENV || "development") === "production",
-  databaseUrl: required("DATABASE_URL"),
+  // Clever Cloud's linked Postgres add-on exposes POSTGRESQL_ADDON_URI, not
+  // DATABASE_URL — fall back to it so the app runs unmodified on Clever Cloud.
+  databaseUrl: required("DATABASE_URL", process.env.POSTGRESQL_ADDON_URI),
   jwtSecret: required("JWT_SECRET"),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "7d",
   logLevel: process.env.LOG_LEVEL || "info",

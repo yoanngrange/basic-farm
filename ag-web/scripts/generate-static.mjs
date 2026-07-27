@@ -2,7 +2,7 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { LOCALES, fetchJson } from "./lib-helpers.mjs";
+import { LOCALES, fetchJson, BASE_PATH } from "./lib-helpers.mjs";
 import {
   pageShell, listingCard, paginationNav, jobPostingJsonLd, contactWidget,
   revealContactWidget, farmProfileTemplate, notFoundPage,
@@ -65,7 +65,7 @@ async function generateIndexPages(locale, dict) {
 
   // Every locale's home page is a translation of the same logical page —
   // real hreflang candidates, always pointing at each locale's page 1.
-  const alternates = Object.fromEntries(LOCALES.map((loc) => [loc, `/${loc}/index.html`]));
+  const alternates = Object.fromEntries(LOCALES.map((loc) => [loc, `${BASE_PATH}/${loc}/index.html`]));
 
   pages.forEach((pageListings, idx) => {
     const page = idx + 1;
@@ -73,7 +73,7 @@ async function generateIndexPages(locale, dict) {
     <h1>${dict.search.title}</h1>
     <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", pageListings.length) : dict.search.noResults}</p>
     ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
-    ${paginationNav({ locale, basePath: `/${locale}/index`, page, totalPages })}
+    ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/index`, page, totalPages })}
     `;
     const filename = page === 1 ? `${locale}/index.html` : `${locale}/index-${page}.html`;
     writeFile(
@@ -82,7 +82,7 @@ async function generateIndexPages(locale, dict) {
         locale,
         title: `${dict.site.title} — ${dict.search.title}`,
         description: dict.site.tagline,
-        canonicalPath: `/${locale}/index.html`,
+        canonicalPath: `${BASE_PATH}/${locale}/index.html`,
         siteName: dict.site.title,
         bodyHtml: body,
         hreflangAlternates: page === 1 ? alternates : undefined,
@@ -116,7 +116,7 @@ async function generateCategoryPages(locale, dict, categorySlugMap) {
     const totalPages = pages.length || 1;
 
     const alternates = Object.fromEntries(
-      Object.entries(byLocale).map(([loc, entry]) => [loc, `/${loc}/category/${entry.slug}.html`])
+      Object.entries(byLocale).map(([loc, entry]) => [loc, `${BASE_PATH}/${loc}/category/${entry.slug}.html`])
     );
 
     pages.forEach((pageListings, idx) => {
@@ -125,7 +125,7 @@ async function generateCategoryPages(locale, dict, categorySlugMap) {
       <h1>${localeEntry.label}</h1>
       <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", pageListings.length) : dict.search.noResults}</p>
       ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
-      ${paginationNav({ locale, basePath: `/${locale}/category/${localeEntry.slug}`, page, totalPages })}
+      ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/category/${localeEntry.slug}`, page, totalPages })}
       `;
       const filename = page === 1 ? `${locale}/category/${localeEntry.slug}.html` : `${locale}/category/${localeEntry.slug}-${page}.html`;
       writeFile(
@@ -134,7 +134,7 @@ async function generateCategoryPages(locale, dict, categorySlugMap) {
           locale,
           title: `${localeEntry.label} — ${dict.site.title}`,
           description: dict.site.tagline,
-          canonicalPath: `/${locale}/category/${localeEntry.slug}.html`,
+          canonicalPath: `${BASE_PATH}/${locale}/category/${localeEntry.slug}.html`,
           siteName: dict.site.title,
           bodyHtml: body,
           hreflangAlternates: page === 1 ? alternates : undefined,
@@ -163,7 +163,7 @@ async function generateListingPages() {
     });
   }
 
-  const homeSwitcher = Object.fromEntries(LOCALES.map((loc) => [loc, `/${loc}/index.html`]));
+  const homeSwitcher = Object.fromEntries(LOCALES.map((loc) => [loc, `${BASE_PATH}/${loc}/index.html`]));
 
   let count = 0;
   for (const slug of allSlugs) {
@@ -182,7 +182,7 @@ async function generateListingPages() {
       <header>
         <h1>${listing.title}</h1>
         <p class="listing-meta">
-          <a href="/${listing.language}/farm/${listing.farm_id}.html">${listing.farm_name}</a>
+          <a href="${BASE_PATH}/${listing.language}/farm/${listing.farm_id}.html">${listing.farm_name}</a>
           &middot; ${listing.locality || ""}${listing.region ? ", " + listing.region : ""} (${listing.country_code})
         </p>
         <p class="listing-meta">${t.listing.publishedOn.replace("{date}", listing.published_at)}</p>
@@ -197,7 +197,7 @@ async function generateListingPages() {
         ${contactWidget(listing, t, API_BASE_URL)}
       </footer>
     </article>
-    <p><a href="/${listing.language}/index.html">&laquo; ${t.listing.backToSearch}</a></p>
+    <p><a href="${BASE_PATH}/${listing.language}/index.html">&laquo; ${t.listing.backToSearch}</a></p>
     `;
 
     writeFile(
@@ -206,7 +206,7 @@ async function generateListingPages() {
         locale: listing.language,
         title: `${listing.title} — ${dict.site.title}`,
         description: listing.description.slice(0, 160),
-        canonicalPath: `/jobs/${slug}.html`,
+        canonicalPath: `${BASE_PATH}/jobs/${slug}.html`,
         siteName: dict.site.title,
         bodyHtml: body,
         switcherAlternates: homeSwitcher,
@@ -222,7 +222,7 @@ async function generateListingPages() {
 // proper nouns), same pattern as the index/category pages.
 async function generateFarmProfiles(farmIds) {
   let count = 0;
-  const homeSwitcher = Object.fromEntries(LOCALES.map((loc) => [loc, `/${loc}/index.html`]));
+  const homeSwitcher = Object.fromEntries(LOCALES.map((loc) => [loc, `${BASE_PATH}/${loc}/index.html`]));
 
   for (const farmId of farmIds) {
     let farm;
@@ -234,7 +234,7 @@ async function generateFarmProfiles(farmIds) {
     const pages = await fetchAllPublished({ farmId });
     const listings = pages.flat();
 
-    const alternates = Object.fromEntries(LOCALES.map((loc) => [loc, `/${loc}/farm/${farmId}.html`]));
+    const alternates = Object.fromEntries(LOCALES.map((loc) => [loc, `${BASE_PATH}/${loc}/farm/${farmId}.html`]));
 
     for (const locale of LOCALES) {
       const dict = loadDict(locale);
@@ -245,7 +245,7 @@ async function generateFarmProfiles(farmIds) {
           locale,
           title: `${farm.name} — ${dict.site.title}`,
           description: dict.site.tagline,
-          canonicalPath: `/${locale}/farm/${farmId}.html`,
+          canonicalPath: `${BASE_PATH}/${locale}/farm/${farmId}.html`,
           siteName: dict.site.title,
           bodyHtml: body,
           hreflangAlternates: alternates,
@@ -293,7 +293,7 @@ async function main() {
   // Root redirect — GitHub Pages serves this as the site's entrypoint.
   writeFile(
     "index.html",
-    `<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0; url=/en/index.html"><title>Ag Jobs</title></head><body></body></html>`,
+    `<!doctype html><html><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0; url=${BASE_PATH}/en/index.html"><title>Ag Jobs</title></head><body></body></html>`,
     { indexable: false }
   );
 

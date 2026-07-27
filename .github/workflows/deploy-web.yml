@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    paths: ["ag-web/**"]
   repository_dispatch:
     types: [listing-changed]
   workflow_dispatch: {}
@@ -19,6 +20,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ag-web
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,6 +32,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          cache-dependency-path: ag-web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -39,15 +44,22 @@ jobs:
           # not localhost — this value is baked into every generated page
           # and into the CSR bundles at build time.
           VITE_API_BASE_URL: ${{ secrets.API_BASE_URL }}
+          SSG_API_BASE_URL: ${{ secrets.API_BASE_URL }}
           # Public Turnstile site key — safe to store as a repo secret or
           # even a plain repo variable, it is not sensitive. If unset, the
           # reveal-contact button is simply omitted (see ag-web README).
           TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
+          # This repo is deployed as a GitHub Pages *project* page
+          # (https://yoanngrange.github.io/ag/), not a custom domain, so
+          # every generated link/asset path needs the /ag prefix. Drop
+          # both once a custom domain is attached (serves from "/").
+          BASE_PATH: /ag
+          SITE_ORIGIN: https://yoanngrange.github.io/ag
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: ag-web/dist
 
   deploy:
     needs: build

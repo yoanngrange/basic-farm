@@ -12,7 +12,7 @@ async function init() {
 
   // Already logged in? skip straight to the dashboard.
   if (getSession()) {
-    window.location.href = "/dashboard.html";
+    window.location.href = `${import.meta.env.BASE_URL}dashboard.html`;
     return;
   }
 
@@ -31,7 +31,7 @@ async function init() {
       });
       saveSession({ token, user });
       const params = new URLSearchParams(window.location.search);
-      window.location.href = params.get("next") || "/dashboard.html";
+      window.location.href = params.get("next") || `${import.meta.env.BASE_URL}dashboard.html`;
     } catch (err) {
       errorEl.textContent = err instanceof ApiError ? err.message : t("auth.genericError");
       errorEl.hidden = false;

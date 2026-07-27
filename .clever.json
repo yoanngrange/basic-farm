@@ -1,0 +1,12 @@
+{
+  "apps": [
+    {
+      "app_id": "app_78510494-7690-4352-94c3-ba44d025faec",
+      "org_id": "user_610d1077-e792-4bd4-ba8c-681f7e94342d",
+      "deploy_url": "https://push-n3-par-clevercloud-customers.services.clever-cloud.com/app_78510494-7690-4352-94c3-ba44d025faec.git",
+      "git_ssh_url": "git+ssh://git@push-n3-par-clevercloud-customers.services.clever-cloud.com/app_78510494-7690-4352-94c3-ba44d025faec.git",
+      "name": "ag",
+      "alias": "ag-api"
+    }
+  ]
+}

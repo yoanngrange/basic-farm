@@ -1,4 +1,4 @@
-import { esc } from "./lib-helpers.mjs";
+import { esc, BASE_PATH } from "./lib-helpers.mjs";
 
 const LOCALE_LABEL = { en: "EN", es: "ES", fr: "FR", it: "IT", pt: "PT" };
 
@@ -33,13 +33,13 @@ export function pageShell({
   <meta name="description" content="${esc(description)}" />
   <link rel="canonical" href="${canonicalPath}" />
 ${hreflangTags}
-  <link rel="stylesheet" href="/assets/pico.min.css" />
-  <link rel="stylesheet" href="/assets/main.css" />
+  <link rel="stylesheet" href="${BASE_PATH}/assets/pico.min.css" />
+  <link rel="stylesheet" href="${BASE_PATH}/assets/main.css" />
 </head>
 <body>
   <header class="container">
     <nav>
-      <ul><li><a href="/${locale}/index.html"><strong>${esc(siteName)}</strong></a></li></ul>
+      <ul><li><a href="${BASE_PATH}/${locale}/index.html"><strong>${esc(siteName)}</strong></a></li></ul>
       <ul>${switcherHtml}</ul>
     </nav>
   </header>
@@ -55,7 +55,7 @@ ${bodyHtml}
 
 export function listingCard(listing, t) {
   return `<article class="listing-card">
-  <h3><a href="/jobs/${esc(listing.slug)}.html">${esc(listing.title)}</a></h3>
+  <h3><a href="${BASE_PATH}/jobs/${esc(listing.slug)}.html">${esc(listing.title)}</a></h3>
   <p class="listing-meta">${esc(listing.locality || "")}${listing.region ? ", " + esc(listing.region) : ""} (${esc(listing.country_code)})
     ${listing.category_slug ? " &middot; " + esc(listing.category_slug) : ""}</p>
 </article>`;
@@ -89,7 +89,7 @@ export function contactWidget(listing, t, apiBaseUrl) {
       <p class="error-message" id="contact-error" hidden></p>
     </form>
   </div>
-  <script src="/assets/contact-widget.js" defer></script>`;
+  <script src="${BASE_PATH}/assets/contact-widget.js" defer></script>`;
 }
 export function revealContactWidget(listing, t, apiBaseUrl, turnstileSiteKey) {
   if (!turnstileSiteKey) return ""; // not configured at build time — skip gracefully, don't ship a broken button
@@ -100,7 +100,7 @@ export function revealContactWidget(listing, t, apiBaseUrl, turnstileSiteKey) {
     <p class="error-message" id="reveal-error" data-error-text="${esc(t.listing.revealError)}" hidden></p>
   </div>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <script src="/assets/reveal-contact-widget.js" defer></script>`;
+  <script src="${BASE_PATH}/assets/reveal-contact-widget.js" defer></script>`;
 }
 
 export function farmProfileTemplate(farm, listings, t) {
@@ -130,15 +130,15 @@ export function notFoundPage(t, siteName) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>404 — ${esc(siteName)}</title>
-  <link rel="stylesheet" href="/assets/pico.min.css" />
-  <link rel="stylesheet" href="/assets/main.css" />
+  <link rel="stylesheet" href="${BASE_PATH}/assets/pico.min.css" />
+  <link rel="stylesheet" href="${BASE_PATH}/assets/main.css" />
 </head>
 <body>
   <main class="container" style="text-align:center; margin-top: 4rem;">
     <div style="font-size: 6rem; transform: rotate(180deg); display: inline-block;">&#128668;</div>
     <h1>404</h1>
     <p>This page took a wrong turn in the field.</p>
-    <p><a href="/en/index.html" role="button">Back to safety</a></p>
+    <p><a href="${BASE_PATH}/en/index.html" role="button">Back to safety</a></p>
   </main>
 </body>
 </html>`;

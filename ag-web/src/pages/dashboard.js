@@ -9,13 +9,13 @@ async function init() {
   document.documentElement.lang = locale;
   applyI18n(t);
 
-  const session = requireSession(locale);
+  const session = requireSession();
   if (!session) return;
 
   document.getElementById("logout-link").addEventListener("click", (e) => {
     e.preventDefault();
     clearSession();
-    window.location.href = "/login.html";
+    window.location.href = `${import.meta.env.BASE_URL}login.html`;
   });
 }
 

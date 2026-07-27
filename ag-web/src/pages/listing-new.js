@@ -10,7 +10,7 @@ async function init() {
   document.documentElement.lang = locale;
   applyI18n(t);
 
-  const session = requireSession(locale);
+  const session = requireSession();
   if (!session) return;
 
   const editId = new URLSearchParams(window.location.search).get("id");
@@ -18,7 +18,7 @@ async function init() {
   const farmSelect = document.getElementById("farm-select");
   const farms = await api.myFarms(session.token).then((r) => r.farms).catch(() => []);
   if (farms.length === 0) {
-    window.location.href = "/dashboard-jobs.html";
+    window.location.href = `${import.meta.env.BASE_URL}dashboard-jobs.html`;
     return;
   }
   farms.forEach((farm) => {
@@ -51,7 +51,7 @@ async function init() {
     const listings = await api.myListings(session.token).then((r) => r.listings).catch(() => []);
     existingListing = listings.find((l) => l.id === editId) || null;
     if (!existingListing) {
-      window.location.href = "/dashboard-jobs.html";
+      window.location.href = `${import.meta.env.BASE_URL}dashboard-jobs.html`;
       return;
     }
     document.getElementById("page-title").textContent = t("dashboard.edit");
@@ -91,7 +91,7 @@ async function init() {
       } else {
         await api.createListing(session.token, payload);
       }
-      window.location.href = "/dashboard-jobs.html";
+      window.location.href = `${import.meta.env.BASE_URL}dashboard-jobs.html`;
     } catch (err) {
       errorEl.textContent = err instanceof ApiError ? err.message : t("auth.genericError");
       errorEl.hidden = false;

@@ -5,7 +5,13 @@ import { resolve } from "path";
 // login, register, dashboard, listing editor. The public, indexable
 // pages (home, listing detail, category pages, per locale) are plain
 // static HTML produced by scripts/generate-static.mjs, not by Vite.
+// BASE_PATH (e.g. "/ag") is set when deployed as a GitHub Pages *project*
+// page — see scripts/lib-helpers.mjs for the same convention used by the
+// SSG templates.
+const BASE_PATH = process.env.BASE_PATH || "";
+
 export default defineConfig({
+  base: `${BASE_PATH}/`,
   build: {
     outDir: "dist",
     rollupOptions: {

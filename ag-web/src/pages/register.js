@@ -11,7 +11,7 @@ async function init() {
   applyI18n(t);
 
   if (getSession()) {
-    window.location.href = "/dashboard.html";
+    window.location.href = `${import.meta.env.BASE_URL}dashboard.html`;
     return;
   }
 
@@ -34,7 +34,7 @@ async function init() {
       await api.register(payload);
       const { token, user } = await api.login({ email: payload.email, password: payload.password });
       saveSession({ token, user });
-      window.location.href = "/dashboard.html";
+      window.location.href = `${import.meta.env.BASE_URL}dashboard.html`;
     } catch (err) {
       errorEl.textContent = err instanceof ApiError ? err.message : t("auth.genericError");
       errorEl.hidden = false;

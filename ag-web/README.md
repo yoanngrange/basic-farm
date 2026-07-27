@@ -59,8 +59,10 @@ remains the only contact path.
 
 ## Deploying to GitHub Pages
 
-`.github/workflows/deploy.yml` builds and publishes `dist/` automatically
-on every push to `main` (or manually via "Run workflow").
+This repo lives in the `ag` monorepo, so the workflow is at the repo
+root: `.github/workflows/deploy-web.yml`. It builds and publishes
+`ag-web/dist/` automatically on every push to `main` that touches
+`ag-web/**` (or manually via "Run workflow").
 
 One-time repo setup required:
 1. **Settings → Pages → Source**: select "GitHub Actions" (not a branch).
@@ -71,6 +73,12 @@ One-time repo setup required:
 Both values get baked into the static build at build time (that's how a
 static site works — there's no runtime config), so redeploy whenever
 either changes.
+
+`BASE_PATH` and `SITE_ORIGIN` are set directly in the workflow (not
+secrets) because this deploys as a GitHub Pages *project* page
+(`https://<user>.github.io/ag/`), not a custom domain — every generated
+link needs the `/ag` prefix. Drop both (and the workflow env lines) once
+a custom domain is attached, since that serves from `/`.
 
 ## Known simplification: farm selection
 

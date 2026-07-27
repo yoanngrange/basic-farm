@@ -20,10 +20,10 @@ export function clearSession() {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-export function requireSession(locale) {
+export function requireSession() {
   const session = getSession();
   if (!session) {
-    window.location.href = `/${locale}/login.html?next=${encodeURIComponent(window.location.pathname)}`;
+    window.location.href = `${import.meta.env.BASE_URL}login.html?next=${encodeURIComponent(window.location.pathname)}`;
     return null;
   }
   return session;

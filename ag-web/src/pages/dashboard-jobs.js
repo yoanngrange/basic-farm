@@ -10,7 +10,7 @@ async function init() {
   document.documentElement.lang = locale;
   applyI18n(t);
 
-  const session = requireSession(locale);
+  const session = requireSession();
   if (!session) return;
 
   const farms = await api.myFarms(session.token).then((r) => r.farms).catch(() => []);
