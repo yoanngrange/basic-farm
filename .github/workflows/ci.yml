@@ -3,17 +3,17 @@ name: CI
 on:
   push:
     branches: [main]
-    paths: ["ag-api/**"]
+    paths: ["basic-farm-api/**"]
   pull_request:
     branches: [main]
-    paths: ["ag-api/**"]
+    paths: ["basic-farm-api/**"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ag-api
+        working-directory: basic-farm-api
 
     services:
       postgres:
@@ -21,7 +21,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: agjob_ci
+          POSTGRES_DB: basic_farm_ci
         ports:
           - 5432:5432
         options: >-
@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: ag-api/package-lock.json
+          cache-dependency-path: basic-farm-api/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -47,7 +47,7 @@ jobs:
       - name: Run test suite
         run: npm test
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/agjob_ci
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/basic_farm_ci
           JWT_SECRET: ci-test-secret-not-for-production
           JWT_EXPIRES_IN: 1h
           LOG_LEVEL: silent

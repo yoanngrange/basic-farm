@@ -1,24 +1,24 @@
-# Faire tourner ag-api + ag-web en local
+# Faire tourner basic-farm-api + basic-farm-web en local
 
 Prérequis : Node.js 20+, PostgreSQL 16 (natif ou Docker), les deux dossiers
-`ag-api` et `ag-web` décompressés côte à côte.
+`basic-farm-api` et `basic-farm-web` décompressés côte à côte.
 
 ## 1. Base de données
 
 **Option A — Postgres natif déjà installé**
 ```bash
-createdb agjob_dev
-psql -d agjob_dev -f ag-api/db/schema.sql
+createdb basic_farm_dev
+psql -d basic_farm_dev -f basic-farm-api/db/schema.sql
 ```
 
 **Option B — Docker (si tu n'as pas Postgres installé)**
 ```bash
-docker run -d --name agjob-postgres \
+docker run -d --name basic-farm-postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=agjob_dev \
+  -e POSTGRES_DB=basic_farm_dev \
   -p 5432:5432 postgres:16
 
-psql -h localhost -U postgres -d agjob_dev -f ag-api/db/schema.sql
+psql -h localhost -U postgres -d basic_farm_dev -f basic-farm-api/db/schema.sql
 # mot de passe : postgres
 ```
 
@@ -30,14 +30,14 @@ lieu de partir d'une base neuve — sinon crée juste un compte et une annonce
 ## 2. Lancer l'API
 
 ```bash
-cd ag-api
+cd basic-farm-api
 npm install
 cp .env.example .env
 ```
 
 Édite `.env` — le minimum vital pour que ça démarre :
 ```
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/agjob_dev
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/basic_farm_dev
 JWT_SECRET=n-importe-quelle-chaine-longue-pour-tester
 ```
 (Tout le reste — Brevo, Turnstile, GitHub dispatch — peut rester vide :
@@ -55,7 +55,7 @@ Vérifie : `curl http://localhost:3000/health` doit répondre `{"status":"ok"}`.
 Dans un **second terminal** :
 
 ```bash
-cd ag-web
+cd basic-farm-web
 npm install
 cp .env.example .env
 ```
