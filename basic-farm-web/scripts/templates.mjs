@@ -61,6 +61,21 @@ export function listingCard(listing, t) {
 </article>`;
 }
 
+// countries: array of { code, label, href }, already sorted/localized by the caller.
+export function countryFilterNav({ countries, anyHref, t }) {
+  if (countries.length === 0) return "";
+  const options = countries.map((c) => `<li><a href="${c.href}">${esc(c.label)}</a></li>`).join("\n");
+  return `<nav aria-label="${esc(t.search.filterCountry)}">
+    <details>
+      <summary role="button" class="secondary">${esc(t.search.filterCountry)}</summary>
+      <ul dir="rtl">
+        <li><a href="${anyHref}">${esc(t.search.anyCountry)}</a></li>
+        ${options}
+      </ul>
+    </details>
+  </nav>`;
+}
+
 export function paginationNav({ locale, basePath, page, totalPages }) {
   if (totalPages <= 1) return "";
   const prev = page > 1 ? `<a href="${basePath}${page - 1 === 1 ? "" : "-" + (page - 1)}.html">&laquo; Prev</a>` : "<span></span>";

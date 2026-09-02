@@ -2,10 +2,10 @@ import "dotenv/config";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { LOCALES, fetchJson, BASE_PATH } from "./lib-helpers.mjs";
+import { LOCALES, fetchJson, BASE_PATH, slugify, countryName } from "./lib-helpers.mjs";
 import {
   pageShell, listingCard, paginationNav, jobPostingJsonLd, contactWidget,
-  revealContactWidget, farmProfileTemplate, notFoundPage,
+  revealContactWidget, farmProfileTemplate, notFoundPage, countryFilterNav,
 } from "./templates.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -42,7 +42,7 @@ function copyAsset(from, to) {
   fs.copyFileSync(path.join(ROOT, from), path.join(OUT_DIR, to));
 }
 
-async function fetchAllPublished({ language, category, farmId }) {
+async function fetchAllPublished({ language, category, country, farmId }) {
   const listings = [];
   let page = 1;
   let totalPages = 1;
@@ -50,6 +50,7 @@ async function fetchAllPublished({ language, category, farmId }) {
     const qs = new URLSearchParams({ status: "published", page: String(page), pageSize: String(PAGE_SIZE) });
     if (language) qs.set("language", language);
     if (category) qs.set("category", category);
+    if (country) qs.set("country", country);
     if (farmId) qs.set("farmId", farmId);
     const res = await fetchJson(`${API_BASE_URL}/jobs/listings?${qs.toString()}`);
     listings.push(res.listings);
@@ -59,7 +60,7 @@ async function fetchAllPublished({ language, category, farmId }) {
   return listings; // array of pages, each an array of listings
 }
 
-async function generateIndexPages(locale, dict) {
+async function generateIndexPages(locale, dict, countryMap) {
   const pages = await fetchAllPublished({ language: locale });
   const totalPages = pages.length || 1;
   const totalCount = pages.reduce((sum, p) => sum + p.length, 0);
@@ -68,10 +69,17 @@ async function generateIndexPages(locale, dict) {
   // real hreflang candidates, always pointing at each locale's page 1.
   const alternates = Object.fromEntries(LOCALES.map((loc) => [loc, `${BASE_PATH}/${loc}/index.html`]));
 
+  const countryNav = countryFilterNav({
+    countries: countriesForLocale(countryMap, locale),
+    anyHref: `${BASE_PATH}/${locale}/index.html`,
+    t: dict,
+  });
+
   pages.forEach((pageListings, idx) => {
     const page = idx + 1;
     const body = `
     <h1>${dict.search.title}</h1>
+    ${countryNav}
     <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", totalCount) : dict.search.noResults}</p>
     ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
     ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/index`, page, totalPages })}
@@ -106,6 +114,76 @@ async function buildCategorySlugMap() {
     }
   }
   return map;
+}
+
+// country_code -> Set of locales that have >=1 published listing there.
+// Unlike categories, there's no DB translation table for countries — the
+// set of "filterable" countries is derived straight from real listing
+// data, which also satisfies "only show countries with >=1 listing".
+async function buildCountryMap() {
+  const map = {};
+  for (const locale of LOCALES) {
+    const pages = await fetchAllPublished({ language: locale });
+    for (const listing of pages.flat()) {
+      if (!listing.country_code) continue;
+      map[listing.country_code] = map[listing.country_code] || new Set();
+      map[listing.country_code].add(locale);
+    }
+  }
+  return map;
+}
+
+function countriesForLocale(countryMap, locale) {
+  return Object.entries(countryMap)
+    .filter(([, locales]) => locales.has(locale))
+    .map(([code]) => ({
+      code,
+      label: countryName(code, locale),
+      href: `${BASE_PATH}/${locale}/country/${slugify(countryName(code, locale))}.html`,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label, locale));
+}
+
+async function generateCountryPages(locale, dict, countryMap) {
+  let count = 0;
+  for (const [code, locales] of Object.entries(countryMap)) {
+    if (!locales.has(locale)) continue;
+    const label = countryName(code, locale);
+    const slug = slugify(label);
+    const pages = await fetchAllPublished({ language: locale, country: code });
+    const totalPages = pages.length || 1;
+    const totalCount = pages.reduce((sum, p) => sum + p.length, 0);
+
+    const alternates = Object.fromEntries(
+      [...locales].map((loc) => [loc, `${BASE_PATH}/${loc}/country/${slugify(countryName(code, loc))}.html`])
+    );
+
+    pages.forEach((pageListings, idx) => {
+      const page = idx + 1;
+      const body = `
+      <h1>${label}</h1>
+      <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", totalCount) : dict.search.noResults}</p>
+      ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
+      ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/country/${slug}`, page, totalPages })}
+      `;
+      const filename = page === 1 ? `${locale}/country/${slug}.html` : `${locale}/country/${slug}-${page}.html`;
+      writeFile(
+        filename,
+        pageShell({
+          locale,
+          title: `${label} — ${dict.site.title}`,
+          description: dict.site.tagline,
+          canonicalPath: `${BASE_PATH}/${locale}/country/${slug}.html`,
+          siteName: dict.site.title,
+          bodyHtml: body,
+          hreflangAlternates: page === 1 ? alternates : undefined,
+          switcherAlternates: alternates,
+        })
+      );
+      count += pageListings.length;
+    });
+  }
+  return count;
 }
 
 async function generateCategoryPages(locale, dict, categorySlugMap) {
@@ -281,12 +359,15 @@ async function main() {
 
   let totalIndexListings = 0;
   let totalCategoryListings = 0;
+  let totalCountryListings = 0;
   const categorySlugMap = await buildCategorySlugMap();
+  const countryMap = await buildCountryMap();
 
   for (const locale of LOCALES) {
     const dict = loadDict(locale);
-    totalIndexListings += await generateIndexPages(locale, dict);
+    totalIndexListings += await generateIndexPages(locale, dict, countryMap);
     totalCategoryListings += await generateCategoryPages(locale, dict, categorySlugMap);
+    totalCountryListings += await generateCountryPages(locale, dict, countryMap);
   }
 
   const { count: listingPageCount, farmIds } = await generateListingPages();
@@ -305,6 +386,7 @@ async function main() {
 
   console.log(
     `Done. Index listings: ${totalIndexListings}, category listings: ${totalCategoryListings}, ` +
+    `country listings: ${totalCountryListings}, ` +
     `listing pages: ${listingPageCount}, farm profiles: ${farmProfileCount} (${farmIds.size} farms x 5 locales), ` +
     `sitemap entries: ${sitemapUrls.length}`
   );
