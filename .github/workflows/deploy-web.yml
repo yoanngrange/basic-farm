@@ -50,13 +50,10 @@ jobs:
           # reveal-contact button is simply omitted (see basic-farm-web
           # README).
           TURNSTILE_SITE_KEY: ${{ secrets.TURNSTILE_SITE_KEY }}
-          # This repo is deployed as a GitHub Pages *project* page
-          # (https://yoanngrange.github.io/basic-farm/), not a custom
-          # domain, so every generated link/asset path needs the
-          # /basic-farm prefix. Drop both once basic-farm.com is attached
-          # as a custom domain (serves from "/").
-          BASE_PATH: /basic-farm
-          SITE_ORIGIN: https://yoanngrange.github.io/basic-farm
+          # basic-farm.com is attached as a custom domain (GitHub Pages
+          # Settings + DNS), so the site serves from "/" — no path prefix.
+          BASE_PATH: ""
+          SITE_ORIGIN: https://basic-farm.com
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
