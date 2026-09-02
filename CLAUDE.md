@@ -1,25 +1,36 @@
-# CLAUDE.md — ag (root)
+# CLAUDE.md — basic-farm (root)
 
 Loaded automatically by Claude Code alongside whichever sub-repo's own
-CLAUDE.md is in scope (`ag-api/CLAUDE.md` or `ag-web/CLAUDE.md`) — Claude
-Code loads every CLAUDE.md from the working directory up through parent
-directories at session start. This file holds what's true across the
-whole platform; each sub-repo's own CLAUDE.md holds what's specific to it.
+CLAUDE.md is in scope (`basic-farm-api/CLAUDE.md` or
+`basic-farm-web/CLAUDE.md`) — Claude Code loads every CLAUDE.md from the
+working directory up through parent directories at session start. This
+file holds what's true across the whole platform; each sub-repo's own
+CLAUDE.md holds what's specific to it.
 
 ## What this is
 
-**ag** is an agri-tech platform for farmers, built one product at a time
-on a shared foundation. The first product: a plain-text, no-photo, no-CV
-job board — recruitment is farmers' #1 problem, hence first. Planned next
-(not started): machinery, invoices, clients, plots, weather. This
-long-term multi-product intent is the reason the architecture separates
-shared entities from product-specific ones from day one, not something
-retrofitted later.
+**Basic Farm** (domain: basic-farm.com) is an agri-tech platform for
+farmers, built one product at a time on a shared foundation. The first
+product: a plain-text, no-photo, no-CV job board — recruitment is
+farmers' #1 problem, hence first. Planned next (not started): machinery,
+invoices, clients, plots, weather. This long-term multi-product intent is
+the reason the architecture separates shared entities from
+product-specific ones from day one, not something retrofitted later.
+"ag" (still visible in git history, old commit messages) was the internal
+codename before the domain/brand were settled — don't reintroduce it in
+new code, repo names, table names, or config defaults.
 
-**Domain name is not final.** Never hardcode "agjob" or any specific
-domain in code, repo names, table names, or config defaults. "ag" is the
-internal codename only. The eventual public domain lives purely in env
-vars / DNS / branding layers.
+**Modules live as routes on one frontend, not one-subdomain-per-module.**
+`basic-farm-web` is a single app; a future module (e.g. weather) becomes
+`basic-farm.com/weather/...`, not `weather.basic-farm.com`. This keeps
+the shared dashboard hub, farm selection, and session/auth on one origin
+instead of needing cross-subdomain cookies/CORS and a separate deploy
+pipeline per module (GitHub Pages only serves one custom domain per
+repo). The one reserved subdomain is `api.basic-farm.com`, for the
+backend — shared by every module, not one API per module either (see the
+architectural rule below). Path-level module segments can be translated
+per locale the same way category slugs already are (canonical id → a
+per-locale slug map) if that comes up later.
 
 **Cost minimization has been a recurring, explicit priority** throughout
 this project (GitHub Pages over Cellar specifically to avoid egress
@@ -30,19 +41,21 @@ adds a paid tier or new piece of infrastructure.
 
 ## Repos
 
-- **`ag-api`** — Express monolith + Postgres. `core` schema (users, farms
-  — shared, reusable) + `jobs` schema (categories, listings, contacts —
-  recruitment-specific). See `ag-api/CLAUDE.md`.
-- **`ag-web`** — static-first frontend. SSG for public/indexable pages,
-  CSR (vanilla JS) for the farmer dashboard. Deployed to GitHub Pages.
-  See `ag-web/CLAUDE.md`.
+- **`basic-farm-api`** — Express monolith + Postgres. `core` schema
+  (users, farms — shared, reusable) + `jobs` schema (categories,
+  listings, contacts — recruitment-specific). See
+  `basic-farm-api/CLAUDE.md`.
+- **`basic-farm-web`** — static-first frontend. SSG for public/indexable
+  pages, CSR (vanilla JS) for the farmer dashboard. Deployed to GitHub
+  Pages. See `basic-farm-web/CLAUDE.md`.
 
-Hosting target: **Clever Cloud** for `ag-api` + Postgres, **GitHub Pages**
-for `ag-web`'s built `dist/`. Not deployed yet as of this writing —
-everything has been run and verified locally (`LOCAL_SETUP.md`) or via
-Docker Compose (`docker-compose.yml`, `DOCKER.md` — written but not
-verified end-to-end, Docker wasn't available in the environment that
-built it).
+Hosting target: **Clever Cloud** for `basic-farm-api` + Postgres,
+**GitHub Pages** for `basic-farm-web`'s built `dist/`. Both are deployed
+and live (GitHub Pages project page, no custom domain attached yet —
+`basic-farm.com` DNS/custom-domain cutover is still pending). Docker
+Compose (`docker-compose.yml`, `DOCKER.md` — written but not verified
+end-to-end, Docker wasn't available in the environment that built it) is
+an alternative local path, not used for deployment.
 
 ## The one architectural rule that matters most
 
@@ -54,10 +67,11 @@ change would violate this (e.g. duplicating farm data into a new module,
 or suggesting a second database), stop and flag it rather than proceeding.
 
 Related, not yet built: **farm selection should live on the main
-dashboard hub** in `ag-web` (shared across every module), not be assumed
-per-module. Right now the only module (`jobs`) hardcodes the user's first
-farm — a known, flagged placeholder, not the intended design. Don't build
-a second module's dashboard without addressing this first.
+dashboard hub** in `basic-farm-web` (shared across every module), not be
+assumed per-module. Right now the only module (`jobs`) hardcodes the
+user's first farm — a known, flagged placeholder, not the intended
+design. Don't build a second module's dashboard without addressing this
+first.
 
 ## Working style established in this project
 

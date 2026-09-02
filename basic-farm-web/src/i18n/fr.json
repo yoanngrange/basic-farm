@@ -1,0 +1,107 @@
+{
+  "site": {
+    "title": "Basic Farm",
+    "tagline": "Des emplois agricoles publies directement par les agriculteurs."
+  },
+  "nav": {
+    "home": "Accueil",
+    "login": "Connexion",
+    "register": "Inscription",
+    "dashboard": "Tableau de bord",
+    "postListing": "Publier une annonce",
+    "logout": "Deconnexion"
+  },
+  "search": {
+    "title": "Trouver un emploi agricole",
+    "filterLanguage": "Langue",
+    "filterCountry": "Pays",
+    "filterCategory": "Categorie",
+    "anyLanguage": "Toutes langues",
+    "anyCountry": "Tous pays",
+    "anyCategory": "Toutes categories",
+    "button": "Rechercher",
+    "resultsCount": "{count} annonces trouvees",
+    "noResults": "Aucune annonce ne correspond a ces filtres.",
+    "previous": "Precedent",
+    "next": "Suivant",
+    "page": "Page {page} sur {totalPages}"
+  },
+  "listing": {
+    "publishedOn": "Publiee le {date}",
+    "startDate": "Date de debut : {date}",
+    "duration": "Duree : {value} {unit}(s)",
+    "category": "Categorie",
+    "location": "Lieu",
+    "language": "Langue",
+    "contactTitle": "Interesse par ce poste ?",
+    "contactByPhone": "Appeler l'exploitation",
+    "contactByEmail": "Envoyer un email",
+    "contactForm": "Envoyer un message",
+    "formEmailLabel": "Votre email",
+    "formMessageLabel": "Message",
+    "formSubmit": "Envoyer",
+    "viewCount": "{count} vues",
+    "backToSearch": "Retour aux resultats",
+    "revealContactButton": "Afficher les coordonnees",
+    "revealVerifying": "Verification...",
+    "revealNoInfo": "Cette exploitation n'a pas fourni de coordonnees publiques.",
+    "revealError": "Echec de la verification, merci de reessayer."
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mot de passe",
+    "firstName": "Prenom",
+    "lastName": "Nom",
+    "phone": "Telephone (optionnel)",
+    "loginTitle": "Connexion",
+    "registerTitle": "Creer votre compte agriculteur",
+    "loginButton": "Se connecter",
+    "registerButton": "Creer le compte",
+    "noAccount": "Pas encore de compte ?",
+    "hasAccount": "Deja un compte ?",
+    "genericError": "Une erreur est survenue, merci de reessayer."
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "myFarms": "Mes exploitations",
+    "myListings": "Mes annonces",
+    "newListing": "Nouvelle annonce",
+    "status": "Statut",
+    "actions": "Actions",
+    "edit": "Modifier",
+    "publish": "Publier",
+    "noListings": "Vous n'avez publie aucune annonce pour le moment.",
+    "noFarms": "Vous n'avez pas encore enregistre d'exploitation."
+  },
+  "form": {
+    "listingTitleLabel": "Titre",
+    "descriptionLabel": "Description",
+    "farmLabel": "Exploitation",
+    "languageLabel": "Langue de l'annonce",
+    "categoryLabel": "Categorie",
+    "startDateLabel": "Date de debut (optionnel)",
+    "durationValueLabel": "Duree",
+    "durationUnitLabel": "Unite",
+    "submit": "Enregistrer",
+    "cancel": "Annuler",
+    "farmNameLabel": "Nom de l'exploitation",
+    "countryLabel": "Pays",
+    "localityLabel": "Ville"
+  },
+  "status": {
+    "draft": "Brouillon",
+    "published": "Publiee",
+    "filled": "Pourvue",
+    "expired": "Expiree",
+    "archived": "Archivee"
+  },
+  "durationUnit": {
+    "day": "jour",
+    "week": "semaine",
+    "month": "mois",
+    "season": "saison"
+  },
+  "footer": {
+    "rights": "Toutes les annonces sont publiees directement par les agriculteurs. Aucun compte n'est requis pour postuler."
+  }
+}
