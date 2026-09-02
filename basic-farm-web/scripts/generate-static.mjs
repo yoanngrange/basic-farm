@@ -62,6 +62,7 @@ async function fetchAllPublished({ language, category, farmId }) {
 async function generateIndexPages(locale, dict) {
   const pages = await fetchAllPublished({ language: locale });
   const totalPages = pages.length || 1;
+  const totalCount = pages.reduce((sum, p) => sum + p.length, 0);
 
   // Every locale's home page is a translation of the same logical page —
   // real hreflang candidates, always pointing at each locale's page 1.
@@ -71,7 +72,7 @@ async function generateIndexPages(locale, dict) {
     const page = idx + 1;
     const body = `
     <h1>${dict.search.title}</h1>
-    <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", pageListings.length) : dict.search.noResults}</p>
+    <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", totalCount) : dict.search.noResults}</p>
     ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
     ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/index`, page, totalPages })}
     `;
@@ -114,6 +115,7 @@ async function generateCategoryPages(locale, dict, categorySlugMap) {
     if (!localeEntry) continue; // no translation for this locale — skip
     const pages = await fetchAllPublished({ language: locale, category: canonicalSlug });
     const totalPages = pages.length || 1;
+    const totalCount = pages.reduce((sum, p) => sum + p.length, 0);
 
     const alternates = Object.fromEntries(
       Object.entries(byLocale).map(([loc, entry]) => [loc, `${BASE_PATH}/${loc}/category/${entry.slug}.html`])
@@ -123,7 +125,7 @@ async function generateCategoryPages(locale, dict, categorySlugMap) {
       const page = idx + 1;
       const body = `
       <h1>${localeEntry.label}</h1>
-      <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", pageListings.length) : dict.search.noResults}</p>
+      <p>${pageListings.length > 0 ? dict.search.resultsCount.replace("{count}", totalCount) : dict.search.noResults}</p>
       ${pageListings.map((l) => listingCard(l, dict)).join("\n")}
       ${paginationNav({ locale, basePath: `${BASE_PATH}/${locale}/category/${localeEntry.slug}`, page, totalPages })}
       `;
