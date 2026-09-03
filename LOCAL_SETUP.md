@@ -1,12 +1,17 @@
 # Faire tourner basic-farm-api + basic-farm-web en local
 
-Prérequis : Node.js 20+, PostgreSQL 16 (natif ou Docker), les deux dossiers
-`basic-farm-api` et `basic-farm-web` décompressés côte à côte.
+Prérequis : Node.js 20+, PostgreSQL 16 **avec l'extension PostGIS**
+(natif ou Docker), les deux dossiers `basic-farm-api` et `basic-farm-web`
+décompressés côte à côte. PostGIS est requis depuis l'ajout du module
+Parcelles (`plots.parcels` stocke de vraies géométries, pas juste un
+point) — `schema.sql` fait `CREATE EXTENSION postgis`, qui échoue si
+l'extension n'est pas installée sur le serveur.
 
 ## 1. Base de données
 
-**Option A — Postgres natif déjà installé**
+**Option A — Postgres natif déjà installé, avec PostGIS**
 ```bash
+brew install postgis   # macOS — installe l'extension pour Postgres
 createdb basic_farm_dev
 psql -d basic_farm_dev -f basic-farm-api/db/schema.sql
 ```
@@ -16,7 +21,7 @@ psql -d basic_farm_dev -f basic-farm-api/db/schema.sql
 docker run -d --name basic-farm-postgres \
   -e POSTGRES_PASSWORD=postgres \
   -e POSTGRES_DB=basic_farm_dev \
-  -p 5432:5432 postgres:16
+  -p 5432:5432 postgis/postgis:16-3.4
 
 psql -h localhost -U postgres -d basic_farm_dev -f basic-farm-api/db/schema.sql
 # mot de passe : postgres

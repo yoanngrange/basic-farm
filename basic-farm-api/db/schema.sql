@@ -12,9 +12,11 @@
 -- =========================================================
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "postgis";
 
 CREATE SCHEMA IF NOT EXISTS core;
 CREATE SCHEMA IF NOT EXISTS jobs;
+CREATE SCHEMA IF NOT EXISTS plots;
 
 -- =========================================================
 -- core.users — farmer accounts, shared by every product
@@ -150,6 +152,60 @@ CREATE TABLE jobs.listing_contacts (
 );
 
 CREATE INDEX idx_jobs_listing_contacts_listing ON jobs.listing_contacts(listing_id);
+
+-- =========================================================
+-- plots.cultures — reference list of crops. Lives in the "plots"
+-- schema (not "core") because it's introduced by the parcels product,
+-- but nothing stops a future module (calendrier de cultures,
+-- traitements...) from referencing it by FK the same way jobs
+-- references core.farms.
+-- =========================================================
+CREATE TABLE plots.cultures (
+    id      UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    label   VARCHAR(100) NOT NULL UNIQUE,
+    slug    VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE plots.culture_translations (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    culture_id      UUID NOT NULL REFERENCES plots.cultures(id) ON DELETE CASCADE,
+    locale          VARCHAR(5) NOT NULL CHECK (locale IN ('en', 'es', 'fr', 'it', 'pt')),
+    label           VARCHAR(100) NOT NULL,
+    slug            VARCHAR(100) NOT NULL,
+    UNIQUE (culture_id, locale),
+    UNIQUE (locale, slug)
+);
+
+-- =========================================================
+-- plots.parcels — specific to the parcels product, references
+-- core.farms. A parcel's boundary is a real polygon (not a point):
+-- needed for accurate area, NDVI-style analysis later, and showing
+-- seasonal workers exactly where a parcel's extent is. area_ha is
+-- ALWAYS derived from the shape (ST_Area is IMMUTABLE for geography,
+-- verified against the real DB before writing this), never entered by
+-- hand. locality/country_code are populated via reverse geocoding at
+-- creation/update time (see src/lib/geocode.js) — best-effort, nullable
+-- if the geocoding call fails, never blocks saving the parcel.
+-- =========================================================
+CREATE TABLE plots.parcels (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id         UUID NOT NULL REFERENCES core.farms(id) ON DELETE CASCADE,
+    culture_id      UUID REFERENCES plots.cultures(id),
+
+    name            VARCHAR(200) NOT NULL,
+    geom            geography(Polygon, 4326) NOT NULL,
+    area_ha         NUMERIC GENERATED ALWAYS AS (ST_Area(geom) / 10000.0) STORED,
+
+    locality        VARCHAR(100),
+    country_code    CHAR(2),
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_plots_parcels_farm ON plots.parcels(farm_id);
+CREATE INDEX idx_plots_parcels_culture ON plots.parcels(culture_id);
+CREATE INDEX idx_plots_parcels_geom ON plots.parcels USING GIST(geom);
 
 -- =========================================================
 -- Future products plug into this SAME database, e.g.:

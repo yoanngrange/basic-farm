@@ -17,7 +17,9 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        # postgis/postgis, not plain postgres — schema.sql now does
+        # CREATE EXTENSION postgis (plots.parcels stores real polygons).
+        image: postgis/postgis:16-3.4
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres

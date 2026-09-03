@@ -48,4 +48,26 @@ async function createListing(token, farmId, overrides = {}) {
   return res.body.listing;
 }
 
-module.exports = { app, registerAndLogin, createFarm, createListing };
+function squarePolygon(lon, lat, size = 0.001) {
+  return {
+    type: "Polygon",
+    coordinates: [[
+      [lon, lat], [lon + size, lat], [lon + size, lat + size], [lon, lat + size], [lon, lat],
+    ]],
+  };
+}
+
+async function createParcel(token, farmId, overrides = {}) {
+  const res = await request(app)
+    .post("/api/plots/parcels")
+    .set("Authorization", `Bearer ${token}`)
+    .send({
+      farmId,
+      name: overrides.name || "Test parcel",
+      geometry: overrides.geometry || squarePolygon(2.3, 48.85),
+      cultureId: overrides.cultureId,
+    });
+  return res.body.parcel;
+}
+
+module.exports = { app, registerAndLogin, createFarm, createListing, createParcel, squarePolygon };

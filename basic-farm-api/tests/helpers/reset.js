@@ -6,6 +6,7 @@ const pool = require("../../src/db/pool");
 async function resetTenantData() {
   await pool.query("DELETE FROM jobs.listing_contacts");
   await pool.query("DELETE FROM jobs.job_listings");
+  await pool.query("DELETE FROM plots.parcels");
   await pool.query("DELETE FROM core.users_farms");
   await pool.query("DELETE FROM core.farms");
   await pool.query("DELETE FROM core.users");

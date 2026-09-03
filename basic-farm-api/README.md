@@ -75,6 +75,11 @@ Set these as environment variables on the app (never commit a `.env`):
 | POST | /api/jobs/listings | JWT | must manage the target farm |
 | PATCH| /api/jobs/listings/:id | JWT | must manage the listing's farm |
 | POST | /api/jobs/listings/:listingId/contacts | — | rate-limited, no account needed |
+| GET  | /api/plots/cultures?locale=xx | — | |
+| POST | /api/plots/parcels | JWT | geometry is a GeoJSON Polygon; area/locality/country are derived, not accepted |
+| GET  | /api/plots/parcels/mine?farmId=xx | JWT | 100% private, must manage the farm |
+| PATCH| /api/plots/parcels/:id | JWT | must manage the parcel's farm |
+| DELETE| /api/plots/parcels/:id | JWT | must manage the parcel's farm |
 
 ## Tests
 

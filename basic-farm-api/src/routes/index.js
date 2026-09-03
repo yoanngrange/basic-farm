@@ -6,6 +6,8 @@ const categoriesRoutes = require("../modules/jobs/categories.routes");
 const listingsRoutes = require("../modules/jobs/listings.routes");
 const contactsRoutes = require("../modules/jobs/contacts.routes");
 const contactsController = require("../modules/jobs/contacts.controller");
+const culturesRoutes = require("../modules/plots/cultures.routes");
+const parcelsRoutes = require("../modules/plots/parcels.routes");
 const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
@@ -19,6 +21,10 @@ router.use("/jobs/categories", categoriesRoutes);
 router.get("/jobs/contacts/mine", requireAuth, contactsController.listMine);
 router.use("/jobs/listings/:listingId/contacts", contactsRoutes);
 router.use("/jobs/listings", listingsRoutes);
+
+// --- plots (parcels product) ---
+router.use("/plots/cultures", culturesRoutes);
+router.use("/plots/parcels", parcelsRoutes);
 
 // Future products mount here the same way, e.g.:
 // router.use("/equipment/machines", require("../modules/equipment/machines.routes"));

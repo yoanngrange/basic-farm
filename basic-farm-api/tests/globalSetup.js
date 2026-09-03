@@ -10,6 +10,7 @@ module.exports = async () => {
   await client.connect();
 
   await client.query("DROP SCHEMA IF EXISTS jobs CASCADE");
+  await client.query("DROP SCHEMA IF EXISTS plots CASCADE");
   await client.query("DROP SCHEMA IF EXISTS core CASCADE");
 
   const schemaSql = fs.readFileSync(path.join(__dirname, "..", "db", "schema.sql"), "utf8");
@@ -28,6 +29,20 @@ module.exports = async () => {
       ('11111111-1111-1111-1111-111111111111', 'it', 'Vendemmia', 'vendemmia'),
       ('22222222-2222-2222-2222-222222222222', 'en', 'Apple Picking', 'apple-picking'),
       ('22222222-2222-2222-2222-222222222222', 'fr', 'Cueillette de pommes', 'cueillette-de-pommes');
+  `);
+
+  // Fixed-id fixture cultures, same read-only-reference-data pattern as
+  // the job categories above.
+  await client.query(`
+    INSERT INTO plots.cultures (id, label, slug) VALUES
+      ('33333333-3333-3333-3333-333333333333', 'Wheat', 'wheat'),
+      ('44444444-4444-4444-4444-444444444444', 'Grapevine', 'grapevine');
+
+    INSERT INTO plots.culture_translations (culture_id, locale, label, slug) VALUES
+      ('33333333-3333-3333-3333-333333333333', 'en', 'Wheat', 'wheat'),
+      ('33333333-3333-3333-3333-333333333333', 'fr', 'Blé', 'ble'),
+      ('44444444-4444-4444-4444-444444444444', 'en', 'Grapevine', 'grapevine'),
+      ('44444444-4444-4444-4444-444444444444', 'fr', 'Vigne', 'vigne');
   `);
 
   await client.end();

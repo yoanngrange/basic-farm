@@ -6,9 +6,11 @@ file covers only what's specific to the API.
 
 ## Architecture recap (see root CLAUDE.md for the full rationale)
 
-Monolith, single Postgres database, two schemas: `core` (users, farms,
-users_farms — shared) and `jobs` (categories, listings, contacts —
-recruitment-specific). Hosting target: Clever Cloud.
+Monolith, single Postgres database, three schemas: `core` (users, farms,
+users_farms — shared), `jobs` (categories, listings, contacts —
+recruitment-specific), and `plots` (cultures, parcels — parcel
+management, all 100% private/per-farm, no public surface unlike jobs).
+Hosting target: Clever Cloud.
 
 ## Key design decisions and why
 
@@ -57,6 +59,31 @@ recruitment-specific). Hosting target: Clever Cloud.
   specifically because the test suite legitimately hits `/register`/`/login`
   many times against one shared in-memory limiter — this was a real bug
   once (limiter tripped mid test-run). Test/CI env sets these very high.
+- **`plots.parcels.geom` is a real polygon (PostGIS `geography(Polygon,
+  4326)`), never a point.** Needed for accurate area, future NDVI-style
+  analysis, and showing seasonal workers exactly where a parcel's extent
+  is. `area_ha` is a `GENERATED ALWAYS ... STORED` column computed from
+  `geom` via `ST_Area` — never accept/store a manually-entered surface
+  value. Verified `ST_Area(geography, boolean)` is `IMMUTABLE` (required
+  for generated columns) against the real prod DB before building this;
+  don't assume other PostGIS functions are IMMUTABLE without checking
+  `pg_proc.provolatile` first. `culture_id` is a required-shape FK into
+  `plots.cultures` — never accept free-text culture names.
+- **`locality`/`country_code` on a parcel are reverse-geocoded, not
+  entered by hand** (`src/lib/geocode.js`, via Nominatim/OpenStreetMap —
+  free, no API key). Best-effort like captcha/mailer/githubDispatch:
+  failures/timeouts leave both fields `null`, never block saving the
+  parcel. **Bypassed entirely when `NODE_ENV=test`** (returns a fixed
+  stub) — Nominatim's public instance rate-limits to ~1 req/sec and a
+  real network call has nothing useful to assert in a test anyway; don't
+  remove that guard or tests will start hitting the real API.
+- **PostGIS is a hard requirement**, not optional — `schema.sql` does
+  `CREATE EXTENSION postgis`. Confirmed already installed on the Clever
+  Cloud Postgres add-on (v3.3.3) with no plan/cost change needed. Local
+  dev needs `brew install postgis` (or the `postgis/postgis` Docker
+  image instead of plain `postgres`); CI's service container uses
+  `postgis/postgis:16-3.4` for the same reason — don't revert either to
+  a plain postgres image.
 
 ## Endpoints (see README.md for the full table)
 
@@ -66,17 +93,21 @@ recruitment-specific). Hosting target: Clever Cloud.
 language/country/category/**farmId** filters + pagination, `/mine` for
 the dashboard, create/update), contacts (public submission + `/mine` for
 the farmer), reveal-contact (captcha-gated).
+`plots`: cultures (locale-aware, mirrors jobs categories), parcels — 100%
+private/farm-scoped, no public endpoint at all (create/update/delete +
+`/mine?farmId=`, all `requireAuth` + farm-membership checked).
 
 ## Testing
 
-Jest + Supertest against a **real** Postgres instance (`basic_farm_ci` db) — no
-mocking of the database layer. `tests/globalSetup.js` drops/recreates
-`core`/`jobs` from `db/schema.sql` plus two fixture categories. Run:
+Jest + Supertest against a **real** Postgres instance (`basic_farm_ci`
+db, needs PostGIS installed) — no mocking of the database layer.
+`tests/globalSetup.js` drops/recreates `core`/`jobs`/`plots` from
+`db/schema.sql` plus fixture categories and fixture cultures. Run:
 ```bash
 createdb basic_farm_ci   # once
 npm test
 ```
-60 tests currently, all passing. When adding a feature, add tests in the
+73 tests currently, all passing. When adding a feature, add tests in the
 matching style — real DB, `supertest` against the exported `app`, spy on
 `mailer.js`/`githubDispatch.js` via their module object (not destructured
 imports) when asserting fire-and-forget side effects.
