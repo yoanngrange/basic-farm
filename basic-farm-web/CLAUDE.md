@@ -72,12 +72,19 @@ Both land in the same `dist/`, deployed together to GitHub Pages via
   contact email/phone) lives inside `dashboard-jobs.html` for now, but
   **farm selection/management is meant to move to the hub** once a second
   module exists — see "Known gaps" below.
+- **`api-keys.html` isn't a product module** (unlike the Jobs/Machinery/...
+  grid) — it's account/integration settings, linked as a plain link from
+  the hub rather than a module card. Manages `core.api_keys`
+  (farm-scoped, not per-user — see `basic-farm-api/CLAUDE.md`), and links
+  out to `/api/v1/docs` (Swagger UI for the public developer API). Same
+  `farms[0]` single-farm assumption as `dashboard-jobs.js` — will need
+  the same fix once real farm selection lands.
 
 ## File map
 
 ```
 login.html, register.html, dashboard.html, dashboard-jobs.html,
-listing-new.html          CSR entry points (built by Vite, see vite.config.js)
+listing-new.html, api-keys.html   CSR entry points (built by Vite, see vite.config.js)
 src/pages/*.js             one file per CSR page above
 src/lib/                   i18n loader, API client (api.js), auth/session
                             helpers (auth.js, localStorage-based — fine here,

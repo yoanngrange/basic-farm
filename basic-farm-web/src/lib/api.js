@@ -52,6 +52,10 @@ export const api = {
   contactsMine: (token) => request("/jobs/contacts/mine", { token }),
 
   contact: (listingId, payload) => request(`/jobs/listings/${listingId}/contacts`, { method: "POST", body: payload }),
+
+  apiKeys: (token, farmId) => request(`/core/farms/${farmId}/api-keys`, { token }),
+  createApiKey: (token, farmId, payload) => request(`/core/farms/${farmId}/api-keys`, { method: "POST", body: payload, token }),
+  deleteApiKey: (token, farmId, keyId) => request(`/core/farms/${farmId}/api-keys/${keyId}`, { method: "DELETE", token }),
 };
 
 export { ApiError, API_BASE_URL };

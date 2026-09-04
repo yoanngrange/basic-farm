@@ -77,9 +77,15 @@ Set these as environment variables on the app (never commit a `.env`):
 | POST | /api/jobs/listings/:listingId/contacts | — | rate-limited, no account needed |
 | GET  | /api/plots/cultures?locale=xx | — | |
 | POST | /api/plots/parcels | JWT | geometry is a GeoJSON Polygon; area/locality/country are derived, not accepted |
-| GET  | /api/plots/parcels/mine?farmId=xx | JWT | 100% private, must manage the farm |
+| GET  | /api/plots/parcels/mine?farmId=xx | JWT | dashboard-side, must manage the farm |
 | PATCH| /api/plots/parcels/:id | JWT | must manage the parcel's farm |
 | DELETE| /api/plots/parcels/:id | JWT | must manage the parcel's farm |
+| GET  | /api/core/farms/:farmId/api-keys | JWT | must manage the farm |
+| POST | /api/core/farms/:farmId/api-keys | JWT | returns the raw key once, max 20/farm |
+| DELETE| /api/core/farms/:farmId/api-keys/:keyId | JWT | hard delete, immediately invalidates the key |
+| GET  | /api/v1/parcels | API key | public developer API, read-only, farm resolved from the key |
+| GET  | /api/v1/parcels/:id | API key | 404 (not 403) if the parcel belongs to a different farm |
+| GET  | /api/v1/docs | — | Swagger UI, see `docs/openapi.yaml` |
 
 ## Tests
 

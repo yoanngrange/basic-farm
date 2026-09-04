@@ -2,6 +2,7 @@ const express = require("express");
 
 const authRoutes = require("../modules/core/auth.routes");
 const farmsRoutes = require("../modules/core/farms.routes");
+const apiKeysRoutes = require("../modules/core/apiKeys.routes");
 const categoriesRoutes = require("../modules/jobs/categories.routes");
 const listingsRoutes = require("../modules/jobs/listings.routes");
 const contactsRoutes = require("../modules/jobs/contacts.routes");
@@ -15,6 +16,7 @@ const router = express.Router();
 // --- core (shared across every future product) ---
 router.use("/core/auth", authRoutes);
 router.use("/core/farms", farmsRoutes);
+router.use("/core/farms/:farmId/api-keys", apiKeysRoutes);
 
 // --- jobs (first product: recruitment) ---
 router.use("/jobs/categories", categoriesRoutes);

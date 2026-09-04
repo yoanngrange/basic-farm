@@ -21,6 +21,7 @@ export default defineConfig({
         dashboard: resolve(__dirname, "dashboard.html"),
         "dashboard-jobs": resolve(__dirname, "dashboard-jobs.html"),
         "listing-new": resolve(__dirname, "listing-new.html"),
+        "api-keys": resolve(__dirname, "api-keys.html"),
       },
     },
   },

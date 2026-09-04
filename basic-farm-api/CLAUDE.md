@@ -7,10 +7,12 @@ file covers only what's specific to the API.
 ## Architecture recap (see root CLAUDE.md for the full rationale)
 
 Monolith, single Postgres database, three schemas: `core` (users, farms,
-users_farms — shared), `jobs` (categories, listings, contacts —
+users_farms, api_keys — shared), `jobs` (categories, listings, contacts —
 recruitment-specific), and `plots` (cultures, parcels — parcel
-management, all 100% private/per-farm, no public surface unlike jobs).
-Hosting target: Clever Cloud.
+management, farm-scoped). Two parallel auth models: JWT session auth for
+the dashboard (`/api/core/*`, `/api/jobs/*`, `/api/plots/*`) and API-key
+auth for the versioned public developer API (`/api/v1/*`, read-only for
+now) — see the API keys section below. Hosting target: Clever Cloud.
 
 ## Key design decisions and why
 
@@ -84,18 +86,54 @@ Hosting target: Clever Cloud.
   image instead of plain `postgres`); CI's service container uses
   `postgis/postgis:16-3.4` for the same reason — don't revert either to
   a plain postgres image.
+- **`core.api_keys` is scoped to a farm, not a user.** Pricing/access is
+  per-farm (see root CLAUDE.md), so an API key represents "this farm's
+  data," and any user who manages the farm can create/revoke one — there
+  is no per-user key. The raw key (`bf_...`) is shown exactly once, at
+  creation; only a SHA-256 hash (`src/lib/tokens.js`, not bcrypt — API
+  keys are high-entropy, not guessable passwords, so bcrypt's deliberate
+  slowness would just tax every `/api/v1` request for no benefit) and a
+  6-char preview are stored. **Hard-deleted on revoke, not soft-revoked**
+  — a "revoked but still listed" row adds confusion without adding
+  safety, since the key stops working the instant it's deleted either
+  way. Capped at 20 keys/farm.
+- **`/api/v1/*` is a separate, versioned, API-key-only surface** —
+  distinct from the dashboard's own `/api/{core,jobs,plots}/*` routes,
+  because third parties build against it and breaking it breaks their
+  integration; the internal routes carry no such contract and can change
+  freely. A key resolves straight to `req.apiKey.farmId`
+  (`src/middleware/apiKeyAuth.js`) — **there is no `farmId` parameter
+  anywhere in v1**, on purpose, so a key literally cannot address another
+  farm's data even by passing a different id (verified: a stranger's key
+  gets a 404, not a 403, on someone else's real parcel id — never confirm
+  or deny another farm's data exists). **Read-only for now** — `scope`
+  (`read`/`read_write`) is already on the schema for when write access
+  lands, but nothing enforces `read_write` yet since no write route
+  exists. Rate-limited separately from the dashboard's limiters
+  (`RATE_LIMIT_V1_MAX`, per API key/IP, per minute — a public developer
+  API is a real abuse surface).
+- **OpenAPI spec is hand-authored** (`docs/openapi.yaml`), not
+  generated from code — deliberate, since Express has no direct
+  equivalent of Fastify's Zod-schema-to-OpenAPI transform, and a
+  hand-written YAML gives direct control to put markdown `description:`
+  prose between schema/path blocks (rendered by Swagger UI at
+  `/api/v1/docs`, mounted public/unauthenticated in `src/app.js`). Keep
+  new `/api/v1` endpoints and this file in sync manually — there's no
+  build step that checks they match.
 
 ## Endpoints (see README.md for the full table)
 
 `core`: auth (register/login/me), farms (CRUD + public profile at
-`GET /core/farms/:id`).
+`GET /core/farms/:id`), api-keys (`/core/farms/:farmId/api-keys` —
+list/create/delete, `requireAuth` + farm-membership).
 `jobs`: categories (locale-aware), listings (public browse with
 language/country/category/**farmId** filters + pagination, `/mine` for
 the dashboard, create/update), contacts (public submission + `/mine` for
 the farmer), reveal-contact (captcha-gated).
-`plots`: cultures (locale-aware, mirrors jobs categories), parcels — 100%
-private/farm-scoped, no public endpoint at all (create/update/delete +
-`/mine?farmId=`, all `requireAuth` + farm-membership checked).
+`plots`: cultures (locale-aware, mirrors jobs categories), parcels —
+dashboard side is farm-scoped (create/update/delete + `/mine?farmId=`,
+`requireAuth`); also exposed read-only via `/api/v1/parcels`, API-key
+auth, see the API keys design decision above.
 
 ## Testing
 
@@ -107,7 +145,7 @@ db, needs PostGIS installed) — no mocking of the database layer.
 createdb basic_farm_ci   # once
 npm test
 ```
-73 tests currently, all passing. When adding a feature, add tests in the
+87 tests currently, all passing. When adding a feature, add tests in the
 matching style — real DB, `supertest` against the exported `app`, spy on
 `mailer.js`/`githubDispatch.js` via their module object (not destructured
 imports) when asserting fire-and-forget side effects.

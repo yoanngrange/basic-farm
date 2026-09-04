@@ -57,4 +57,5 @@ jobs:
           IP_HASH_SALT: ci-salt
           RATE_LIMIT_AUTH_MAX: 1000
           RATE_LIMIT_CONTACT_MAX: 1000
+          RATE_LIMIT_V1_MAX: 1000
           NODE_ENV: test

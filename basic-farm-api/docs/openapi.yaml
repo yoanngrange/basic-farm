@@ -1,0 +1,226 @@
+openapi: 3.0.3
+
+info:
+  title: Basic Farm public API
+  version: "1.0.0"
+  description: |
+    Read access to a farm's own data, for whatever third-party tool a
+    farmer wants to plug in — a spreadsheet, a BI dashboard, an n8n/Zapier
+    flow, a farm's own script. This is deliberately a separate contract
+    from the internal API the Basic Farm dashboard itself uses: this one
+    is versioned (`/v1`) and meant to stay stable, so breaking it would
+    break someone else's integration.
+
+    **Read-only for now.** Write access (creating/editing a parcel via
+    the API) is on the roadmap once the read side has seen real-world
+    use — see the `read_write` scope already reserved on API keys for
+    when that lands.
+
+    ## Authentication
+
+    Every request needs an API key in the `Authorization` header, as a
+    bearer token:
+
+    ```
+    Authorization: Bearer bf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    ```
+
+    Generate a key from the Basic Farm dashboard, under **Dashboard →
+    API keys**. A key is scoped to exactly one farm — there's no `farmId`
+    parameter anywhere in this API, because the key itself already
+    determines which farm's data you're reading. A key cannot be used to
+    read another farm's data, even by passing a different id.
+
+    The raw key is shown **once**, right after creation. If you lose it,
+    revoke it and create a new one — Basic Farm never stores the raw
+    value, only a hash of it.
+
+    ## Rate limits
+
+    100 requests per minute per API key (falls back to per-IP for
+    unauthenticated/invalid-key requests). Exceeding it returns `429`.
+
+servers:
+  - url: https://api.basic-farm.com/api/v1
+    description: Production
+  - url: http://localhost:3000/api/v1
+    description: Local development
+
+security:
+  - apiKey: []
+
+tags:
+  - name: parcels
+    description: |
+      A parcel (*parcelle*) is a field/plot on a farm. Its boundary is a
+      real polygon, not a single point — `area_ha` is always **computed
+      from that boundary**, never a value you can set directly, so it
+      stays accurate as the shape is redrawn or re-imported. `locality`
+      and `country` are filled in automatically from the polygon's
+      location (reverse geocoding) and may be `null` if that lookup
+      hasn't resolved yet.
+
+components:
+  securitySchemes:
+    apiKey:
+      type: http
+      scheme: bearer
+      description: >
+        API key created in the Basic Farm dashboard under
+        Dashboard → API keys. See the top-level description for the
+        full authentication model.
+
+  schemas:
+    GeoJsonPolygon:
+      type: object
+      description: |
+        Standard [GeoJSON](https://geojson.org) Polygon — the same format
+        produced by QGIS, geojson.io, or any `ST_AsGeoJSON` PostGIS
+        export. The exterior ring's first and last coordinate pairs must
+        be identical (a closed ring).
+      required: [type, coordinates]
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          description: One exterior ring — an array of `[longitude, latitude]` pairs, closed (first point repeated last).
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 2
+
+    Parcel:
+      type: object
+      description: |
+        A single parcel, as returned by both `GET /parcels` (one entry
+        per item) and `GET /parcels/{id}`.
+      properties:
+        id:
+          type: string
+          format: uuid
+        farm_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: Grand champ
+        culture_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: References a crop from the `plots.cultures` reference list. `null` if no culture is currently assigned (e.g. fallow land not yet recorded as such).
+        culture_slug:
+          type: string
+          nullable: true
+          example: wheat
+        geometry:
+          $ref: "#/components/schemas/GeoJsonPolygon"
+        area_ha:
+          type: string
+          description: Hectares, computed from `geometry` — always a derived value, never user-entered.
+          example: "9.83340352196693"
+        locality:
+          type: string
+          nullable: true
+          example: Rambouillet
+        country_code:
+          type: string
+          nullable: true
+          example: FR
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ParcelList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Parcel"
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: NOT_FOUND
+            message:
+              type: string
+              example: Parcel not found
+        requestId:
+          type: string
+          description: Correlates this response to the API's own logs — include it when reporting an issue.
+
+paths:
+  /parcels:
+    get:
+      tags: [parcels]
+      summary: List this farm's parcels
+      description: |
+        Returns every parcel belonging to the farm the API key is scoped
+        to. Not paginated yet — expect this to change if a farm's parcel
+        count grows large enough to need it, but for now a farm's whole
+        parcel list comes back in one response.
+      responses:
+        "200":
+          description: The farm's parcels.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParcelList"
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /parcels/{id}:
+    get:
+      tags: [parcels]
+      summary: Get a single parcel
+      description: |
+        Returns one parcel by id — but only if it belongs to the farm the
+        API key is scoped to. A parcel id from a *different* farm returns
+        `404`, the same as an id that doesn't exist at all — this API
+        never confirms or denies that a given id exists on someone else's
+        farm.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: The parcel.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Parcel"
+        "401":
+          description: Missing or invalid API key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: No parcel with this id on this farm.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"

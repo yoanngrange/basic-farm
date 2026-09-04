@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="apiKeys.pageTitle">API keys</title>
+  <script type="module" src="/src/pages/api-keys.js"></script>
+</head>
+<body>
+  <nav class="container">
+    <ul><li><strong data-i18n="site.title">Basic Farm</strong></li></ul>
+    <ul>
+      <li><a href="dashboard.html" data-i18n="dashboard.title">Dashboard</a></li>
+      <li><a href="#" id="logout-link" data-i18n="nav.logout">Log out</a></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <hgroup>
+      <h1 data-i18n="apiKeys.pageTitle">API keys</h1>
+      <p><a href="/api/v1/docs" target="_blank" rel="noreferrer" data-i18n="apiKeys.readDocs">API docs</a></p>
+    </hgroup>
+
+    <p id="key-count" hidden></p>
+
+    <div id="empty-state" hidden>
+      <p data-i18n="apiKeys.emptyTitle">No API keys yet</p>
+      <p data-i18n="apiKeys.emptyBody">Create a key to let a script or a third-party tool read this farm's data.</p>
+      <button id="empty-create-btn" data-i18n="apiKeys.createFirst">Create your first key</button>
+    </div>
+
+    <article id="new-key-reveal" hidden>
+      <p data-i18n="apiKeys.copyNow">Copy this key now — it won't be shown again.</p>
+      <pre id="new-key-value" style="white-space: pre-wrap; word-break: break-all;"></pre>
+      <button id="copy-key-btn" data-i18n="apiKeys.copy">Copy</button>
+      <button id="reveal-done-btn" class="secondary" data-i18n="apiKeys.done">Done</button>
+    </article>
+
+    <button id="toggle-form-btn" data-i18n="apiKeys.create">Create key</button>
+
+    <form id="create-form" hidden>
+      <label>
+        <span data-i18n="apiKeys.name">Name</span>
+        <input type="text" name="name" data-i18n-placeholder="apiKeys.namePlaceholder" placeholder="e.g. n8n integration" />
+      </label>
+      <p class="error-message" id="create-error" hidden></p>
+      <button type="submit" id="create-submit-btn" data-i18n="apiKeys.createKey">Create key</button>
+    </form>
+
+    <table id="keys-table" hidden>
+      <thead>
+        <tr>
+          <th data-i18n="apiKeys.name">Name</th>
+          <th data-i18n="apiKeys.key">Key</th>
+          <th data-i18n="apiKeys.created">Created</th>
+          <th data-i18n="apiKeys.createdBy">Created by</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="keys-body"></tbody>
+    </table>
+  </main>
+</body>
+</html>

@@ -82,6 +82,30 @@ CREATE TABLE core.users_farms (
 CREATE INDEX idx_core_farms_country_code ON core.farms(country_code);
 
 -- =========================================================
+-- core.api_keys — lets a farm expose its own data to third-party
+-- tools/integrations (the "intégrable dans les deux sens" requirement),
+-- separate from the JWT session auth used by the dashboard. Scoped to a
+-- farm (not a user) since pricing/access is per-farm, not per-seat.
+-- Hard-deleted on revoke, not soft-revoked: a "revoked but still listed"
+-- row adds confusion without adding safety, since the key is unusable
+-- either way the moment it's gone from here.
+-- =========================================================
+CREATE TABLE core.api_keys (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id         UUID NOT NULL REFERENCES core.farms(id) ON DELETE CASCADE,
+    created_by      UUID REFERENCES core.users(id) ON DELETE SET NULL,
+    name            VARCHAR(100) NOT NULL,
+    scope           VARCHAR(20) NOT NULL DEFAULT 'read'
+                    CHECK (scope IN ('read', 'read_write')),
+    key_hash        VARCHAR(64) NOT NULL UNIQUE,
+    key_preview     VARCHAR(6) NOT NULL,
+    last_used_at    TIMESTAMPTZ,
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_core_api_keys_farm ON core.api_keys(farm_id);
+
+-- =========================================================
 -- jobs.job_categories — specific to the recruitment product
 -- =========================================================
 CREATE TABLE jobs.job_categories (

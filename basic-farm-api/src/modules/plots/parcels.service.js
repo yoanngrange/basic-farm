@@ -38,9 +38,10 @@ async function create(userId, data) {
   return parseRow(result.rows[0]);
 }
 
-async function listMine(userId, farmId) {
-  if (!farmId) throw new ValidationError("farmId is required");
-  await farmsService.assertUserCanManage(userId, farmId);
+// No ownership check here on purpose — used both by listMine (after its
+// own JWT-based check below) and by the /api/v1 API-key surface, where
+// the key itself already resolved to exactly one farm.
+async function listForFarm(farmId) {
   const result = await pool.query(
     `SELECT p.id, p.farm_id, p.culture_id, c.slug AS culture_slug, p.name,
             ST_AsGeoJSON(p.geom::geometry) AS geometry, p.area_ha, p.locality, p.country_code,
@@ -52,6 +53,26 @@ async function listMine(userId, farmId) {
     [farmId]
   );
   return result.rows.map(parseRow);
+}
+
+async function getForFarm(farmId, parcelId) {
+  const result = await pool.query(
+    `SELECT p.id, p.farm_id, p.culture_id, c.slug AS culture_slug, p.name,
+            ST_AsGeoJSON(p.geom::geometry) AS geometry, p.area_ha, p.locality, p.country_code,
+            p.created_at, p.updated_at
+     FROM plots.parcels p
+     LEFT JOIN plots.cultures c ON c.id = p.culture_id
+     WHERE p.id = $1 AND p.farm_id = $2`,
+    [parcelId, farmId]
+  );
+  if (result.rowCount === 0) throw new NotFoundError("Parcel not found");
+  return parseRow(result.rows[0]);
+}
+
+async function listMine(userId, farmId) {
+  if (!farmId) throw new ValidationError("farmId is required");
+  await farmsService.assertUserCanManage(userId, farmId);
+  return listForFarm(farmId);
 }
 
 async function assertUserCanManageParcel(userId, parcelId) {
@@ -96,4 +117,4 @@ async function remove(userId, parcelId) {
   await pool.query("DELETE FROM plots.parcels WHERE id = $1", [parcelId]);
 }
 
-module.exports = { create, listMine, update, remove };
+module.exports = { create, listMine, listForFarm, getForFarm, update, remove };

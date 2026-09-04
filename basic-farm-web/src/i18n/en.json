@@ -30,6 +30,20 @@
     "status": "Status", "actions": "Actions", "edit": "Edit", "publish": "Publish", "noListings": "You haven't posted any listing yet.",
     "noFarms": "You haven't registered a farm yet."
   },
+  "apiKeys": {
+    "pageTitle": "API keys", "readDocs": "API docs",
+    "create": "Create key", "cancel": "Cancel", "createFirst": "Create your first key",
+    "emptyTitle": "No API keys yet",
+    "emptyBody": "Create a key to let a script or a third-party tool read this farm's data.",
+    "name": "Name", "namePlaceholder": "e.g. n8n integration",
+    "validationError": "Give this key a name.",
+    "createKey": "Create key", "creating": "Creating...",
+    "copyNow": "Copy this key now — it won't be shown again.", "copy": "Copy", "done": "Done",
+    "key": "Key", "created": "Created", "createdBy": "Created by", "activeCount": "active",
+    "delete": "Delete",
+    "confirmDelete": "Delete this API key? Any integration using it will stop working immediately.",
+    "genericError": "Something went wrong, please try again."
+  },
   "form": {
     "listingTitleLabel": "Title", "descriptionLabel": "Description", "farmLabel": "Farm",
     "languageLabel": "Listing language", "categoryLabel": "Category", "startDateLabel": "Start date (optional)",

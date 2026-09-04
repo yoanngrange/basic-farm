@@ -70,4 +70,12 @@ async function createParcel(token, farmId, overrides = {}) {
   return res.body.parcel;
 }
 
-module.exports = { app, registerAndLogin, createFarm, createListing, createParcel, squarePolygon };
+async function createApiKey(token, farmId, overrides = {}) {
+  const res = await request(app)
+    .post(`/api/core/farms/${farmId}/api-keys`)
+    .set("Authorization", `Bearer ${token}`)
+    .send({ name: overrides.name || "Test integration", scope: overrides.scope });
+  return res.body; // { apiKey, rawKey }
+}
+
+module.exports = { app, registerAndLogin, createFarm, createListing, createParcel, createApiKey, squarePolygon };
