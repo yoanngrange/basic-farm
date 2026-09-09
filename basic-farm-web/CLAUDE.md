@@ -66,29 +66,46 @@ Both land in the same `dist/`, deployed together to GitHub Pages via
   `python3 -m http.server` was confirmed to serve everything correctly
   and is the recommended fallback.
 - **Dashboard is a hub, not a jobs-specific page.** `dashboard.html` links
-  to per-module dashboards (only "Jobs" — `dashboard-jobs.html` — is
-  functional today; Machinery/Invoices/Clients/Plots/Weather are
-  disabled placeholders). Farm CRUD (logo, name, address, country, public
-  contact email/phone) lives inside `dashboard-jobs.html` for now, but
-  **farm selection/management is meant to move to the hub** once a second
-  module exists — see "Known gaps" below.
-- **`api-keys.html` isn't a product module** (unlike the Jobs/Machinery/...
+  to per-module dashboards ("Jobs" — `dashboard-jobs.html` — and
+  "Weather" — `dashboard-weather.html` — are functional;
+  Machinery/Invoices/Clients/Plots are still disabled placeholders,
+  Plots' API exists but has no frontend yet). Farm CRUD (logo, name,
+  address, country, public contact email/phone) still lives inside
+  `dashboard-jobs.html`, but **farm selection now lives on the hub**
+  (`src/lib/farmContext.js` + `dashboard.js`'s farm switcher, shown only
+  when the user has 2+ farms) — every module page reads the persisted
+  choice via `farmContext.resolveCurrentFarm(farms)` instead of
+  hardcoding `farms[0]`. Built 2026-09-09, specifically because a second
+  and third module (Parcelles' frontend, Weather) were about to be added
+  and the project's own CLAUDE.md flags this as a hard prerequisite
+  before that happens.
+- **`api-keys.html` isn't a product module** (unlike the Jobs/Weather/...
   grid) — it's account/integration settings, linked as a plain link from
   the hub rather than a module card. Manages `core.api_keys`
   (farm-scoped, not per-user — see `basic-farm-api/CLAUDE.md`), and links
-  out to `/api/v1/docs` (Swagger UI for the public developer API). Same
-  `farms[0]` single-farm assumption as `dashboard-jobs.js` — will need
-  the same fix once real farm selection lands.
+  out to `/api/v1/docs` (Swagger UI for the public developer API). Uses
+  the same `farmContext.resolveCurrentFarm()` as every other module page.
+- **`dashboard-weather.html`** — city search (autocomplete against
+  `GET /weather/locations/search`, worldwide, debounced 300ms), saved
+  locations as cards (current conditions + 7-day daily table + "last
+  updated" timestamp + manual refresh button). The backend
+  auto-refreshes any cache older than `WEATHER_CACHE_TTL_MINUTES` on
+  every `GET /mine`, so "as fresh as possible" needs no polling/websocket
+  on this side — the page just re-fetches the list. WMO weather codes are
+  mapped to a small emoji set (`WEATHER_ICONS` in
+  `src/pages/dashboard-weather.js`), not exhaustive, good enough for v1.
 
 ## File map
 
 ```
 login.html, register.html, dashboard.html, dashboard-jobs.html,
-listing-new.html, api-keys.html   CSR entry points (built by Vite, see vite.config.js)
+listing-new.html, api-keys.html, dashboard-weather.html   CSR entry points
+                            (built by Vite, see vite.config.js)
 src/pages/*.js             one file per CSR page above
 src/lib/                   i18n loader, API client (api.js), auth/session
                             helpers (auth.js, localStorage-based — fine here,
-                            this isn't a claude.ai artifact)
+                            this isn't a claude.ai artifact), farmContext.js
+                            (shared "current farm" selection, see below)
 src/i18n/{en,es,fr,it,pt}.json   UI string translations
 src/styles/main.css         small additions on top of Pico
 src/static-assets/          vanilla JS shipped as-is (not bundled) to SSG
@@ -117,12 +134,12 @@ the wrong slug, dotenv not being loaded by the plain-Node SSG script,
 
 ## Known gaps / intentionally deferred
 
-- **Farm selection is hardcoded to `farms[0]`** in `dashboard-jobs.js`.
-  Placeholder, not the intended design — the person building this
-  explicitly flagged that farm selection should live on the main
-  dashboard hub (shared across all future modules), not be assumed
-  per-module. Don't build a second module's dashboard without addressing
-  this first.
+- ~~Farm selection is hardcoded to `farms[0]`~~ — fixed 2026-09-09, see
+  `src/lib/farmContext.js` above. Farm CRUD itself (the form to
+  create/edit a farm's details) still lives inside `dashboard-jobs.html`
+  rather than the hub — only *selecting* an existing farm moved, not
+  managing one. Move CRUD to the hub too if a module ships that needs it
+  before Jobs does.
 - No file upload for farm logo — it's a plain URL field.
 - No password reset flow.
 - GitHub Pages deploy workflow (`deploy.yml`) accepts both `push` and

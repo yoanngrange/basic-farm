@@ -86,6 +86,11 @@ Set these as environment variables on the app (never commit a `.env`):
 | GET  | /api/v1/parcels | API key | public developer API, read-only, farm resolved from the key |
 | GET  | /api/v1/parcels/:id | API key | 404 (not 403) if the parcel belongs to a different farm |
 | GET  | /api/v1/docs | — | Swagger UI, see `docs/openapi.yaml` |
+| GET  | /api/weather/locations/search?q=&locale=xx | JWT | worldwide city search via Open-Meteo geocoding |
+| GET  | /api/weather/locations/mine?farmId=xx | JWT | stale (>`WEATHER_CACHE_TTL_MINUTES`) forecasts auto-refresh on read |
+| POST | /api/weather/locations | JWT | fetches a forecast immediately; upsert on (farmId, lat, lon) |
+| POST | /api/weather/locations/:id/refresh | JWT | forces a refetch regardless of cache age |
+| DELETE| /api/weather/locations/:id | JWT | must manage the location's farm |
 
 ## Tests
 

@@ -71,7 +71,8 @@
     "edit": "Modifier",
     "publish": "Publier",
     "noListings": "Vous n'avez publie aucune annonce pour le moment.",
-    "noFarms": "Vous n'avez pas encore enregistre d'exploitation."
+    "noFarms": "Vous n'avez pas encore enregistre d'exploitation.",
+    "currentFarm": "Exploitation actuelle"
   },
   "apiKeys": {
     "pageTitle": "Cles API",
@@ -124,6 +125,38 @@
     "week": "semaine",
     "month": "mois",
     "season": "saison"
+  },
+  "plots": {
+    "pageTitle": "Parcelles",
+    "drawInstructions": "Utilisez l'outil polygone sur la carte pour dessiner une nouvelle parcelle.",
+    "newParcel": "Nouvelle parcelle",
+    "cultureLabel": "Culture",
+    "noCulture": "Sans culture",
+    "statsCount": "Parcelles",
+    "statsArea": "Surface totale",
+    "statsByCulture": "Par culture",
+    "noParcels": "Aucune parcelle pour le moment.",
+    "reshape": "Modifier le contour",
+    "doneReshaping": "Termine",
+    "delete": "Supprimer",
+    "confirmRemove": "Supprimer cette parcelle ?",
+    "genericError": "Une erreur est survenue."
+  },
+  "weather": {
+    "pageTitle": "Meteo",
+    "forFarm": "Exploitation :",
+    "addLocation": "Ajouter un lieu",
+    "searchPlaceholder": "Rechercher une ville...",
+    "noLocations": "Aucun lieu enregistre pour le moment.",
+    "remove": "Supprimer",
+    "confirmRemove": "Supprimer ce lieu ?",
+    "noForecastYet": "Previsions pas encore disponibles.",
+    "lastUpdated": "Derniere mise a jour",
+    "refresh": "Actualiser",
+    "max": "Max",
+    "min": "Min",
+    "precip": "Precip.",
+    "genericError": "Une erreur est survenue."
   },
   "footer": {
     "rights": "Toutes les annonces sont publiees directement par les agriculteurs. Aucun compte n'est requis pour postuler."

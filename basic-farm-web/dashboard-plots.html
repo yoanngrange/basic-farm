@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="plots.pageTitle">Plots</title>
+  <script type="module" src="/src/pages/dashboard-plots.js"></script>
+</head>
+<body>
+  <nav class="container">
+    <ul><li><strong data-i18n="site.title">Basic Farm</strong></li></ul>
+    <ul><li><a href="dashboard.html" data-i18n="dashboard.title">Dashboard</a></li></ul>
+  </nav>
+
+  <main class="container">
+    <h1 data-i18n="plots.pageTitle">Plots</h1>
+    <p><span data-i18n="weather.forFarm">Farm:</span> <strong id="current-farm-name"></strong></p>
+
+    <section id="stats-section" class="grid">
+      <article>
+        <header data-i18n="plots.statsCount">Parcels</header>
+        <p id="stat-count">0</p>
+      </article>
+      <article>
+        <header data-i18n="plots.statsArea">Total area</header>
+        <p id="stat-area">0 ha</p>
+      </article>
+      <article>
+        <header data-i18n="plots.statsByCulture">By crop</header>
+        <ul id="stat-by-culture"></ul>
+      </article>
+    </section>
+
+    <section id="map-section">
+      <p class="hint" data-i18n="plots.drawInstructions">Use the polygon tool on the map to draw a new plot.</p>
+      <div id="map"></div>
+    </section>
+
+    <div id="new-parcel-panel" hidden>
+      <h2 data-i18n="plots.newParcel">New plot</h2>
+      <form id="new-parcel-form">
+        <label>
+          <span data-i18n="form.farmNameLabel">Name</span>
+          <input type="text" name="name" required />
+        </label>
+        <label>
+          <span data-i18n="plots.cultureLabel">Crop</span>
+          <select name="cultureId">
+            <option value="" data-i18n="plots.noCulture">No crop</option>
+          </select>
+        </label>
+        <p class="error-message" id="new-parcel-error" hidden></p>
+        <button type="submit" data-i18n="form.submit">Save</button>
+        <button type="button" class="secondary" id="new-parcel-cancel" data-i18n="form.cancel">Cancel</button>
+      </form>
+    </div>
+
+    <section id="parcels-list"></section>
+    <p id="no-parcels-message" data-i18n="plots.noParcels" hidden>No plots yet.</p>
+
+    <div id="empty-state" hidden>
+      <p data-i18n="dashboard.noFarms">You haven't registered a farm yet.</p>
+    </div>
+  </main>
+</body>
+</html>

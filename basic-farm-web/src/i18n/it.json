@@ -71,7 +71,8 @@
     "edit": "Modifica",
     "publish": "Pubblica",
     "noListings": "Non hai ancora pubblicato nessun annuncio.",
-    "noFarms": "Non hai ancora registrato nessuna azienda."
+    "noFarms": "Non hai ancora registrato nessuna azienda.",
+    "currentFarm": "Azienda attuale"
   },
   "apiKeys": {
     "pageTitle": "Chiavi API",
@@ -124,6 +125,38 @@
     "week": "settimana",
     "month": "mese",
     "season": "stagione"
+  },
+  "plots": {
+    "pageTitle": "Particelle",
+    "drawInstructions": "Usa lo strumento poligono sulla mappa per disegnare una nuova particella.",
+    "newParcel": "Nuova particella",
+    "cultureLabel": "Coltura",
+    "noCulture": "Nessuna coltura",
+    "statsCount": "Particelle",
+    "statsArea": "Superficie totale",
+    "statsByCulture": "Per coltura",
+    "noParcels": "Nessuna particella ancora.",
+    "reshape": "Modifica contorno",
+    "doneReshaping": "Fatto",
+    "delete": "Elimina",
+    "confirmRemove": "Eliminare questa particella?",
+    "genericError": "Qualcosa e andato storto."
+  },
+  "weather": {
+    "pageTitle": "Meteo",
+    "forFarm": "Azienda:",
+    "addLocation": "Aggiungi una localita",
+    "searchPlaceholder": "Cerca una citta...",
+    "noLocations": "Nessuna localita salvata.",
+    "remove": "Rimuovi",
+    "confirmRemove": "Rimuovere questa localita?",
+    "noForecastYet": "Previsioni non ancora disponibili.",
+    "lastUpdated": "Ultimo aggiornamento",
+    "refresh": "Aggiorna",
+    "max": "Max",
+    "min": "Min",
+    "precip": "Precip.",
+    "genericError": "Qualcosa e andato storto."
   },
   "footer": {
     "rights": "Tutti gli annunci sono pubblicati direttamente dagli agricoltori. Non e richiesto alcun account per candidarsi."

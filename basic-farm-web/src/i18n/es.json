@@ -71,7 +71,8 @@
     "edit": "Editar",
     "publish": "Publicar",
     "noListings": "Aun no has publicado ninguna oferta.",
-    "noFarms": "Aun no has registrado ninguna finca."
+    "noFarms": "Aun no has registrado ninguna finca.",
+    "currentFarm": "Finca actual"
   },
   "apiKeys": {
     "pageTitle": "Claves API",
@@ -124,6 +125,38 @@
     "week": "semana",
     "month": "mes",
     "season": "temporada"
+  },
+  "plots": {
+    "pageTitle": "Parcelas",
+    "drawInstructions": "Usa la herramienta de poligono en el mapa para dibujar una parcela.",
+    "newParcel": "Nueva parcela",
+    "cultureLabel": "Cultivo",
+    "noCulture": "Sin cultivo",
+    "statsCount": "Parcelas",
+    "statsArea": "Superficie total",
+    "statsByCulture": "Por cultivo",
+    "noParcels": "Aun no hay parcelas.",
+    "reshape": "Modificar contorno",
+    "doneReshaping": "Listo",
+    "delete": "Eliminar",
+    "confirmRemove": "Eliminar esta parcela?",
+    "genericError": "Algo salio mal."
+  },
+  "weather": {
+    "pageTitle": "Meteorologia",
+    "forFarm": "Finca:",
+    "addLocation": "Anadir una ubicacion",
+    "searchPlaceholder": "Buscar una ciudad...",
+    "noLocations": "Aun no hay ubicaciones guardadas.",
+    "remove": "Eliminar",
+    "confirmRemove": "Eliminar esta ubicacion?",
+    "noForecastYet": "Prevision no disponible todavia.",
+    "lastUpdated": "Ultima actualizacion",
+    "refresh": "Actualizar",
+    "max": "Max",
+    "min": "Min",
+    "precip": "Precip.",
+    "genericError": "Algo salio mal."
   },
   "footer": {
     "rights": "Todas las ofertas son publicadas directamente por los agricultores. No se requiere cuenta para postularse."

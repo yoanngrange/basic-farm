@@ -71,7 +71,8 @@
     "edit": "Editar",
     "publish": "Publicar",
     "noListings": "Ainda nao publicou nenhum anuncio.",
-    "noFarms": "Ainda nao registou nenhuma quinta."
+    "noFarms": "Ainda nao registou nenhuma quinta.",
+    "currentFarm": "Quinta atual"
   },
   "apiKeys": {
     "pageTitle": "Chaves API",
@@ -124,6 +125,38 @@
     "week": "semana",
     "month": "mes",
     "season": "epoca"
+  },
+  "plots": {
+    "pageTitle": "Parcelas",
+    "drawInstructions": "Use a ferramenta de poligono no mapa para desenhar uma nova parcela.",
+    "newParcel": "Nova parcela",
+    "cultureLabel": "Cultura",
+    "noCulture": "Sem cultura",
+    "statsCount": "Parcelas",
+    "statsArea": "Area total",
+    "statsByCulture": "Por cultura",
+    "noParcels": "Ainda nao ha parcelas.",
+    "reshape": "Editar contorno",
+    "doneReshaping": "Concluido",
+    "delete": "Remover",
+    "confirmRemove": "Remover esta parcela?",
+    "genericError": "Algo correu mal."
+  },
+  "weather": {
+    "pageTitle": "Meteorologia",
+    "forFarm": "Quinta:",
+    "addLocation": "Adicionar uma localizacao",
+    "searchPlaceholder": "Procurar uma cidade...",
+    "noLocations": "Ainda nao ha localizacoes guardadas.",
+    "remove": "Remover",
+    "confirmRemove": "Remover esta localizacao?",
+    "noForecastYet": "Previsao ainda nao disponivel.",
+    "lastUpdated": "Ultima atualizacao",
+    "refresh": "Atualizar",
+    "max": "Max",
+    "min": "Min",
+    "precip": "Precip.",
+    "genericError": "Algo correu mal."
   },
   "footer": {
     "rights": "Todos os anuncios sao publicados diretamente pelos agricultores. Nao e necessaria conta para se candidatar."

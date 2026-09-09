@@ -4,6 +4,7 @@ import { loadI18n } from "../lib/i18n.js";
 import { applyI18n } from "../lib/applyI18n.js";
 import { api, ApiError } from "../lib/api.js";
 import { requireSession, clearSession } from "../lib/auth.js";
+import { resolveCurrentFarm } from "../lib/farmContext.js";
 
 async function init() {
   const { t, locale } = await loadI18n();
@@ -20,7 +21,7 @@ async function init() {
   });
 
   const farms = await api.myFarms(session.token).then((r) => r.farms).catch(() => []);
-  const farm = farms[0] || null; // single-farm assumption for now, see basic-farm-web/CLAUDE.md
+  const farm = resolveCurrentFarm(farms);
 
   if (!farm) {
     document.getElementById("toggle-form-btn").hidden = true;

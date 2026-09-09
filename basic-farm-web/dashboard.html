@@ -15,6 +15,14 @@
 
   <main class="container">
     <h1 data-i18n="dashboard.title">Dashboard</h1>
+
+    <div id="farm-switcher-wrap" hidden>
+      <label>
+        <span data-i18n="dashboard.currentFarm">Current farm</span>
+        <select id="farm-switcher"></select>
+      </label>
+    </div>
+
     <p><a href="api-keys.html" data-i18n="apiKeys.pageTitle">API keys</a></p>
     <p>Pick a module to manage:</p>
     <div class="grid" id="module-grid">
@@ -40,15 +48,15 @@
         <p>Manage client relationships.</p>
         <button disabled>Coming soon</button>
       </article>
-      <article aria-disabled="true">
+      <article>
         <header><strong>Plots</strong></header>
-        <p>Track fields and plots.</p>
-        <button disabled>Coming soon</button>
+        <p>Draw and manage your fields, link them to crops, see area stats.</p>
+        <a href="dashboard-plots.html" role="button">Open</a>
       </article>
-      <article aria-disabled="true">
+      <article>
         <header><strong>Weather</strong></header>
-        <p>Weather forecasts for your parcels.</p>
-        <button disabled>Coming soon</button>
+        <p>Weather forecasts for your saved locations.</p>
+        <a href="dashboard-weather.html" role="button">Open</a>
       </article>
     </div>
   </main>

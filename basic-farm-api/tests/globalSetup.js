@@ -11,6 +11,7 @@ module.exports = async () => {
 
   await client.query("DROP SCHEMA IF EXISTS jobs CASCADE");
   await client.query("DROP SCHEMA IF EXISTS plots CASCADE");
+  await client.query("DROP SCHEMA IF EXISTS weather CASCADE");
   await client.query("DROP SCHEMA IF EXISTS core CASCADE");
 
   const schemaSql = fs.readFileSync(path.join(__dirname, "..", "db", "schema.sql"), "utf8");

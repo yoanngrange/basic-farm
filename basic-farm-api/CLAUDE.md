@@ -6,13 +6,15 @@ file covers only what's specific to the API.
 
 ## Architecture recap (see root CLAUDE.md for the full rationale)
 
-Monolith, single Postgres database, three schemas: `core` (users, farms,
+Monolith, single Postgres database, four schemas: `core` (users, farms,
 users_farms, api_keys — shared), `jobs` (categories, listings, contacts —
-recruitment-specific), and `plots` (cultures, parcels — parcel
-management, farm-scoped). Two parallel auth models: JWT session auth for
-the dashboard (`/api/core/*`, `/api/jobs/*`, `/api/plots/*`) and API-key
-auth for the versioned public developer API (`/api/v1/*`, read-only for
-now) — see the API keys section below. Hosting target: Clever Cloud.
+recruitment-specific), `plots` (cultures, parcels — parcel management,
+farm-scoped), and `weather` (locations — forecast widget, farm-scoped).
+Two parallel auth models: JWT session auth for the dashboard
+(`/api/core/*`, `/api/jobs/*`, `/api/plots/*`, `/api/weather/*`) and
+API-key auth for the versioned public developer API (`/api/v1/*`,
+read-only for now) — see the API keys section below. Hosting target:
+Clever Cloud.
 
 ## Key design decisions and why
 
@@ -112,6 +114,23 @@ now) — see the API keys section below. Hosting target: Clever Cloud.
   exists. Rate-limited separately from the dashboard's limiters
   (`RATE_LIMIT_V1_MAX`, per API key/IP, per minute — a public developer
   API is a real abuse surface).
+- **`weather.locations` caches the forecast inline** (`forecast_json` +
+  `forecast_fetched_at` columns) rather than in a separate table — there
+  is only ever one "latest" forecast per location, never a history to
+  query, so a second table would be a permanent 1:1 join for nothing.
+  `GET /weather/locations/mine` auto-refreshes any row older than
+  `WEATHER_CACHE_TTL_MINUTES` (default 30) before returning it — "refresh
+  dès que possible" is handled by that read-time check, not a cron job or
+  queue (no infra to add). `POST /:id/refresh` forces a refetch outside
+  that window. Both geocoding (`GET /search`, worldwide city
+  autocomplete) and the forecast itself go through Open-Meteo — free, no
+  API key, no rate limit that matters at this volume — mirroring the
+  Nominatim/`src/lib/geocode.js` graceful-degradation pattern: a failed
+  fetch never throws, it just leaves the existing cache (or `null`) in
+  place. Bypassed in tests (`src/lib/weather.js`, `NODE_ENV=test` stub)
+  the same way `geocode.js` is. `(farm_id, latitude, longitude)` is
+  unique — saving the same coordinates twice updates the label instead of
+  creating a duplicate row.
 - **OpenAPI spec is hand-authored** (`docs/openapi.yaml`), not
   generated from code — deliberate, since Express has no direct
   equivalent of Fastify's Zod-schema-to-OpenAPI transform, and a
@@ -134,6 +153,9 @@ the farmer), reveal-contact (captcha-gated).
 dashboard side is farm-scoped (create/update/delete + `/mine?farmId=`,
 `requireAuth`); also exposed read-only via `/api/v1/parcels`, API-key
 auth, see the API keys design decision above.
+`weather`: locations (`/search` for city autocomplete, farm-scoped
+create/`/mine?farmId=`/delete/`:id/refresh`, `requireAuth`) — see the
+weather design decision above.
 
 ## Testing
 
@@ -145,10 +167,24 @@ db, needs PostGIS installed) — no mocking of the database layer.
 createdb basic_farm_ci   # once
 npm test
 ```
-87 tests currently, all passing. When adding a feature, add tests in the
-matching style — real DB, `supertest` against the exported `app`, spy on
+98 tests currently, all passing (weather added `tests/weather/`, 11 more
+than before). When adding a feature, add tests in the matching style —
+real DB, `supertest` against the exported `app`, spy on
 `mailer.js`/`githubDispatch.js` via their module object (not destructured
 imports) when asserting fire-and-forget side effects.
+
+**Local environment note (2026-09-09, resolved same day):** this machine
+briefly had `postgresql@16` running as the linked/active server while
+Homebrew's `postgis` formula was only built for `postgresql@17`/`@18`,
+which blocked `CREATE EXTENSION postgis` and therefore all of `npm test`
+(not just plots). Fixed by switching the machine to `postgresql@17`
+(already installed, matches postgis's build target): `pg_dumpall` backup
+→ `brew services stop postgresql@16` → `brew unlink postgresql@16` →
+`brew link postgresql@17` → `brew services start postgresql@17` →
+restore the dump. `postgresql@16` is left installed but unlinked/stopped
+(not uninstalled) in case a rollback is ever needed. This was a
+machine-wide change, not scoped to this repo — it also affects the
+`basic-map` sibling project's local Postgres.
 
 ## Known gaps / intentionally deferred
 

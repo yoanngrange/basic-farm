@@ -56,6 +56,18 @@ export const api = {
   apiKeys: (token, farmId) => request(`/core/farms/${farmId}/api-keys`, { token }),
   createApiKey: (token, farmId, payload) => request(`/core/farms/${farmId}/api-keys`, { method: "POST", body: payload, token }),
   deleteApiKey: (token, farmId, keyId) => request(`/core/farms/${farmId}/api-keys/${keyId}`, { method: "DELETE", token }),
+
+  cultures: (locale) => request("/plots/cultures", { params: { locale } }),
+  myParcels: (token, farmId) => request("/plots/parcels/mine", { params: { farmId }, token }),
+  createParcel: (token, payload) => request("/plots/parcels", { method: "POST", body: payload, token }),
+  updateParcel: (token, id, payload) => request(`/plots/parcels/${id}`, { method: "PATCH", body: payload, token }),
+  deleteParcel: (token, id) => request(`/plots/parcels/${id}`, { method: "DELETE", token }),
+
+  weatherSearch: (token, q, locale) => request("/weather/locations/search", { params: { q, locale }, token }),
+  weatherLocations: (token, farmId) => request("/weather/locations/mine", { params: { farmId }, token }),
+  createWeatherLocation: (token, payload) => request("/weather/locations", { method: "POST", body: payload, token }),
+  refreshWeatherLocation: (token, id) => request(`/weather/locations/${id}/refresh`, { method: "POST", token }),
+  deleteWeatherLocation: (token, id) => request(`/weather/locations/${id}`, { method: "DELETE", token }),
 };
 
 export { ApiError, API_BASE_URL };

@@ -17,6 +17,7 @@ CREATE EXTENSION IF NOT EXISTS "postgis";
 CREATE SCHEMA IF NOT EXISTS core;
 CREATE SCHEMA IF NOT EXISTS jobs;
 CREATE SCHEMA IF NOT EXISTS plots;
+CREATE SCHEMA IF NOT EXISTS weather;
 
 -- =========================================================
 -- core.users — farmer accounts, shared by every product
@@ -230,6 +231,29 @@ CREATE TABLE plots.parcels (
 CREATE INDEX idx_plots_parcels_farm ON plots.parcels(farm_id);
 CREATE INDEX idx_plots_parcels_culture ON plots.parcels(culture_id);
 CREATE INDEX idx_plots_parcels_geom ON plots.parcels USING GIST(geom);
+
+-- =========================================================
+-- weather.locations — farm-scoped saved locations for the forecast
+-- widget. Forecast data is cached inline (forecast_json +
+-- forecast_fetched_at) rather than in a separate table: there is only
+-- ever one "latest" forecast per location, never a history to query,
+-- so a second table would just be a permanent 1:1 join for no benefit.
+-- =========================================================
+CREATE TABLE weather.locations (
+    id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id               UUID NOT NULL REFERENCES core.farms(id) ON DELETE CASCADE,
+    label                 VARCHAR(200) NOT NULL,
+    latitude              DECIMAL(9,6) NOT NULL,
+    longitude             DECIMAL(9,6) NOT NULL,
+    country_code          CHAR(2),
+    timezone              VARCHAR(64),
+    forecast_json         JSONB,
+    forecast_fetched_at   TIMESTAMPTZ,
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (farm_id, latitude, longitude)
+);
+
+CREATE INDEX idx_weather_locations_farm ON weather.locations(farm_id);
 
 -- =========================================================
 -- Future products plug into this SAME database, e.g.:

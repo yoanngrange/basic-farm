@@ -4,6 +4,7 @@ import { loadI18n } from "../lib/i18n.js";
 import { applyI18n } from "../lib/applyI18n.js";
 import { api, ApiError } from "../lib/api.js";
 import { requireSession } from "../lib/auth.js";
+import { resolveCurrentFarm } from "../lib/farmContext.js";
 
 async function init() {
   const { t, locale } = await loadI18n();
@@ -14,7 +15,7 @@ async function init() {
   if (!session) return;
 
   const farms = await api.myFarms(session.token).then((r) => r.farms).catch(() => []);
-  const currentFarm = farms[0] || null; // single-farm assumption for now
+  const currentFarm = resolveCurrentFarm(farms);
   setupFarmForm(session.token, currentFarm);
 
   if (!currentFarm) {

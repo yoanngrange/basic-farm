@@ -9,6 +9,7 @@ const contactsRoutes = require("../modules/jobs/contacts.routes");
 const contactsController = require("../modules/jobs/contacts.controller");
 const culturesRoutes = require("../modules/plots/cultures.routes");
 const parcelsRoutes = require("../modules/plots/parcels.routes");
+const weatherLocationsRoutes = require("../modules/weather/locations.routes");
 const { requireAuth } = require("../middleware/auth");
 
 const router = express.Router();
@@ -27,6 +28,9 @@ router.use("/jobs/listings", listingsRoutes);
 // --- plots (parcels product) ---
 router.use("/plots/cultures", culturesRoutes);
 router.use("/plots/parcels", parcelsRoutes);
+
+// --- weather (forecast widget) ---
+router.use("/weather/locations", weatherLocationsRoutes);
 
 // Future products mount here the same way, e.g.:
 // router.use("/equipment/machines", require("../modules/equipment/machines.routes"));

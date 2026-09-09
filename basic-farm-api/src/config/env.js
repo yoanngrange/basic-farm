@@ -28,4 +28,9 @@ module.exports = {
   githubDispatchToken: process.env.GITHUB_DISPATCH_TOKEN || null,
   githubDispatchRepo: process.env.GITHUB_DISPATCH_REPO || null,
   githubDispatchEventType: process.env.GITHUB_DISPATCH_EVENT_TYPE || "listing-changed",
+  // How long a cached forecast is served before a request for it triggers
+  // a refetch. Open-Meteo's models refresh roughly hourly; 30 min keeps
+  // the dashboard close to "as fresh as possible" without hammering a
+  // free public API on every page load.
+  weatherCacheTtlMinutes: parseInt(process.env.WEATHER_CACHE_TTL_MINUTES || "30", 10),
 };

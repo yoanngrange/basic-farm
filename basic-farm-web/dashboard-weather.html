@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title data-i18n="weather.pageTitle">Weather</title>
+  <script type="module" src="/src/pages/dashboard-weather.js"></script>
+</head>
+<body>
+  <nav class="container">
+    <ul><li><strong data-i18n="site.title">Basic Farm</strong></li></ul>
+    <ul><li><a href="dashboard.html" data-i18n="dashboard.title">Dashboard</a></li></ul>
+  </nav>
+
+  <main class="container">
+    <h1 data-i18n="weather.pageTitle">Weather</h1>
+    <p><span data-i18n="weather.forFarm">Farm:</span> <strong id="current-farm-name"></strong></p>
+
+    <section id="search-section">
+      <label>
+        <span data-i18n="weather.addLocation">Add a location</span>
+        <input type="text" id="city-search" autocomplete="off" data-i18n-placeholder="weather.searchPlaceholder" placeholder="Search a city..." />
+      </label>
+      <ul id="search-results" class="search-results" hidden></ul>
+    </section>
+
+    <section class="grid" id="locations"></section>
+    <p id="no-locations-message" data-i18n="weather.noLocations" hidden>No locations saved yet.</p>
+
+    <div id="empty-state" hidden>
+      <p data-i18n="dashboard.noFarms">You haven't registered a farm yet.</p>
+    </div>
+  </main>
+</body>
+</html>

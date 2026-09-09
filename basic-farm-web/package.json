@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@picocss/pico": "^2.0.6",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "leaflet": "^1.9.4",
+    "leaflet-draw": "^1.0.4"
   },
   "devDependencies": {
     "vite": "^5.4.0"

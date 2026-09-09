@@ -31,3 +31,99 @@
   font-size: 0.8em;
   border: 1px solid var(--pico-muted-border-color);
 }
+
+#search-section {
+  position: relative;
+  max-width: 30rem;
+}
+
+.search-results {
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--pico-background-color);
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.search-results li {
+  margin: 0;
+}
+
+.search-results button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.5rem 0.75rem;
+  margin: 0;
+  border-radius: 0;
+}
+
+.search-results button:hover {
+  background: var(--pico-secondary-focus);
+}
+
+.weather-card table {
+  font-size: 0.85em;
+}
+
+.weather-current {
+  font-size: 1.5em;
+  margin: 0.5rem 0;
+}
+
+.weather-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.weather-updated {
+  color: var(--pico-muted-color);
+  font-size: 0.85em;
+  margin: 0;
+}
+
+#map {
+  height: 28rem;
+  border-radius: var(--pico-border-radius);
+  margin-bottom: 1rem;
+}
+
+.hint {
+  color: var(--pico-muted-color);
+  font-size: 0.9em;
+}
+
+#new-parcel-panel {
+  border: 1px solid var(--pico-muted-border-color);
+  border-radius: var(--pico-border-radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.parcel-item {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr auto auto auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--pico-muted-border-color);
+}
+
+.parcel-area,
+.parcel-location {
+  color: var(--pico-muted-color);
+  font-size: 0.9em;
+}
