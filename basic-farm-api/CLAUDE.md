@@ -6,15 +6,16 @@ file covers only what's specific to the API.
 
 ## Architecture recap (see root CLAUDE.md for the full rationale)
 
-Monolith, single Postgres database, four schemas: `core` (users, farms,
+Monolith, single Postgres database, five schemas: `core` (users, farms,
 users_farms, api_keys — shared), `jobs` (categories, listings, contacts —
 recruitment-specific), `plots` (cultures, parcels — parcel management,
-farm-scoped), and `weather` (locations — forecast widget, farm-scoped).
-Two parallel auth models: JWT session auth for the dashboard
-(`/api/core/*`, `/api/jobs/*`, `/api/plots/*`, `/api/weather/*`) and
-API-key auth for the versioned public developer API (`/api/v1/*`,
-read-only for now) — see the API keys section below. Hosting target:
-Clever Cloud.
+farm-scoped), `weather` (locations — forecast widget, farm-scoped), and
+`personnel` (people, teams, team_members — staff management, farm-scoped,
+product-facing label "Équipe"). Two parallel auth models: JWT session
+auth for the dashboard (`/api/core/*`, `/api/jobs/*`, `/api/plots/*`,
+`/api/weather/*`, `/api/personnel/*`) and API-key auth for the versioned
+public developer API (`/api/v1/*`, read-only for now) — see the API keys
+section below. Hosting target: Clever Cloud.
 
 ## Key design decisions and why
 
@@ -131,6 +132,22 @@ Clever Cloud.
   the same way `geocode.js` is. `(farm_id, latitude, longitude)` is
   unique — saving the same coordinates twice updates the label instead of
   creating a duplicate row.
+- **`personnel.people` is a distinct entity from `core.users`**, not a
+  role on it — most seasonal workers never need or want a login.
+  `user_id` is nullable and reserved for a future optional account link;
+  no linking flow exists yet. `role_title` is free text (no fixed
+  taxonomy decided — see root CLAUDE.md's persona mandate, "rudimentary
+  first"). `status` (active/inactive) lets someone be archived without
+  deleting history that future modules (Affectation, Pointage) will want
+  to reference — never hard-delete for "left the farm," only for a
+  genuine data-entry mistake. Teams are many-to-many
+  (`personnel.team_members`) since a person can belong to more than one
+  (e.g. permanent staff + a harvest-season team), same shape as
+  `core.users_farms`. **Bulk "import" (`POST /people/bulk`) takes a JSON
+  array, not a file** — a farmer pastes one person per line client-side;
+  no CSV/file-format parsing exists yet. All-or-nothing (one transaction,
+  one bad row fails the whole batch) so a partial import never needs
+  manual cleanup.
 - **OpenAPI spec is hand-authored** (`docs/openapi.yaml`), not
   generated from code — deliberate, since Express has no direct
   equivalent of Fastify's Zod-schema-to-OpenAPI transform, and a
@@ -156,6 +173,10 @@ auth, see the API keys design decision above.
 `weather`: locations (`/search` for city autocomplete, farm-scoped
 create/`/mine?farmId=`/delete/`:id/refresh`, `requireAuth`) — see the
 weather design decision above.
+`personnel`: people (create/`bulk`/`/mine?farmId=`/update/delete) and
+teams (create/`/mine?farmId=`/update/delete +
+`:id/members`/`:id/members/:personId` for membership), `requireAuth` —
+see the personnel design decision above.
 
 ## Testing
 
@@ -167,8 +188,8 @@ db, needs PostGIS installed) — no mocking of the database layer.
 createdb basic_farm_ci   # once
 npm test
 ```
-98 tests currently, all passing (weather added `tests/weather/`, 11 more
-than before). When adding a feature, add tests in the matching style —
+114 tests currently, all passing (`tests/personnel/` added 16 for people
++ teams, on top of weather's 11). When adding a feature, add tests in the matching style —
 real DB, `supertest` against the exported `app`, spy on
 `mailer.js`/`githubDispatch.js` via their module object (not destructured
 imports) when asserting fire-and-forget side effects.

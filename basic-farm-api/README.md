@@ -91,6 +91,17 @@ Set these as environment variables on the app (never commit a `.env`):
 | POST | /api/weather/locations | JWT | fetches a forecast immediately; upsert on (farmId, lat, lon) |
 | POST | /api/weather/locations/:id/refresh | JWT | forces a refetch regardless of cache age |
 | DELETE| /api/weather/locations/:id | JWT | must manage the location's farm |
+| GET  | /api/personnel/people/mine?farmId=xx | JWT | |
+| POST | /api/personnel/people | JWT | |
+| POST | /api/personnel/people/bulk | JWT | array of {firstName,lastName,roleTitle?,email?,phone?}, all-or-nothing |
+| PATCH| /api/personnel/people/:id | JWT | includes status (active/inactive) |
+| DELETE| /api/personnel/people/:id | JWT | |
+| GET  | /api/personnel/teams/mine?farmId=xx | JWT | each team includes its members inline |
+| POST | /api/personnel/teams | JWT | |
+| PATCH| /api/personnel/teams/:id | JWT | rename |
+| DELETE| /api/personnel/teams/:id | JWT | cascades team_members |
+| POST | /api/personnel/teams/:id/members | JWT | { personId }, 409 if already a member |
+| DELETE| /api/personnel/teams/:id/members/:personId | JWT | |
 
 ## Tests
 
@@ -102,6 +113,8 @@ actually fails a test.
 createdb basic_farm_ci
 npm test
 ```
+
+114 tests currently, all passing.
 
 `tests/globalSetup.js` drops and recreates the `core`/`jobs` schemas from
 `db/schema.sql` before the run, plus two fixture categories (with fr/en/it

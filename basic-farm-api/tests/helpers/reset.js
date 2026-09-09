@@ -8,6 +8,9 @@ async function resetTenantData() {
   await pool.query("DELETE FROM jobs.job_listings");
   await pool.query("DELETE FROM plots.parcels");
   await pool.query("DELETE FROM weather.locations");
+  await pool.query("DELETE FROM personnel.team_members");
+  await pool.query("DELETE FROM personnel.teams");
+  await pool.query("DELETE FROM personnel.people");
   await pool.query("DELETE FROM core.api_keys");
   await pool.query("DELETE FROM core.users_farms");
   await pool.query("DELETE FROM core.farms");

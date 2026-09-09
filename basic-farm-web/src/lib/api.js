@@ -63,6 +63,19 @@ export const api = {
   updateParcel: (token, id, payload) => request(`/plots/parcels/${id}`, { method: "PATCH", body: payload, token }),
   deleteParcel: (token, id) => request(`/plots/parcels/${id}`, { method: "DELETE", token }),
 
+  people: (token, farmId) => request("/personnel/people/mine", { params: { farmId }, token }),
+  createPerson: (token, payload) => request("/personnel/people", { method: "POST", body: payload, token }),
+  createPeopleBulk: (token, payload) => request("/personnel/people/bulk", { method: "POST", body: payload, token }),
+  updatePerson: (token, id, payload) => request(`/personnel/people/${id}`, { method: "PATCH", body: payload, token }),
+  deletePerson: (token, id) => request(`/personnel/people/${id}`, { method: "DELETE", token }),
+
+  teams: (token, farmId) => request("/personnel/teams/mine", { params: { farmId }, token }),
+  createTeam: (token, payload) => request("/personnel/teams", { method: "POST", body: payload, token }),
+  renameTeam: (token, id, name) => request(`/personnel/teams/${id}`, { method: "PATCH", body: { name }, token }),
+  deleteTeam: (token, id) => request(`/personnel/teams/${id}`, { method: "DELETE", token }),
+  addTeamMember: (token, teamId, personId) => request(`/personnel/teams/${teamId}/members`, { method: "POST", body: { personId }, token }),
+  removeTeamMember: (token, teamId, personId) => request(`/personnel/teams/${teamId}/members/${personId}`, { method: "DELETE", token }),
+
   weatherSearch: (token, q, locale) => request("/weather/locations/search", { params: { q, locale }, token }),
   weatherLocations: (token, farmId) => request("/weather/locations/mine", { params: { farmId }, token }),
   createWeatherLocation: (token, payload) => request("/weather/locations", { method: "POST", body: payload, token }),

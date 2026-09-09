@@ -24,6 +24,7 @@ export default defineConfig({
         "api-keys": resolve(__dirname, "api-keys.html"),
         "dashboard-weather": resolve(__dirname, "dashboard-weather.html"),
         "dashboard-plots": resolve(__dirname, "dashboard-plots.html"),
+        "dashboard-team": resolve(__dirname, "dashboard-team.html"),
       },
     },
   },

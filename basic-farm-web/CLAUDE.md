@@ -66,10 +66,10 @@ Both land in the same `dist/`, deployed together to GitHub Pages via
   `python3 -m http.server` was confirmed to serve everything correctly
   and is the recommended fallback.
 - **Dashboard is a hub, not a jobs-specific page.** `dashboard.html` links
-  to per-module dashboards ("Jobs" — `dashboard-jobs.html` — and
-  "Weather" — `dashboard-weather.html` — are functional;
-  Machinery/Invoices/Clients/Plots are still disabled placeholders,
-  Plots' API exists but has no frontend yet). Farm CRUD (logo, name,
+  to per-module dashboards ("Jobs" — `dashboard-jobs.html` —, "Weather" —
+  `dashboard-weather.html` —, "Plots" — `dashboard-plots.html` — and
+  "Équipe" — `dashboard-team.html` — are functional; Machinery/Invoices/
+  Clients are still disabled placeholders). Farm CRUD (logo, name,
   address, country, public contact email/phone) still lives inside
   `dashboard-jobs.html`, but **farm selection now lives on the hub**
   (`src/lib/farmContext.js` + `dashboard.js`'s farm switcher, shown only
@@ -94,12 +94,23 @@ Both land in the same `dist/`, deployed together to GitHub Pages via
   on this side — the page just re-fetches the list. WMO weather codes are
   mapped to a small emoji set (`WEATHER_ICONS` in
   `src/pages/dashboard-weather.js`), not exhaustive, good enough for v1.
+- **`dashboard-team.html`** — the product-facing label is "Équipe" even
+  though the backend schema/module is `personnel` (see
+  `basic-farm-api/CLAUDE.md`) — deliberate naming choice, don't rename
+  one to match the other. People are listed in an editable table (each
+  cell is its own input/select, patched on change — same inline-edit
+  pattern as `dashboard-plots.js`'s parcel list); "add several at once"
+  is a client-side textarea parsed as `First, Last, Role` per line, not
+  a file upload — there's no CSV parsing anywhere in this app. Teams show
+  members as removable chips plus a select-and-add control fed by
+  whichever people aren't already in that team.
 
 ## File map
 
 ```
 login.html, register.html, dashboard.html, dashboard-jobs.html,
-listing-new.html, api-keys.html, dashboard-weather.html   CSR entry points
+listing-new.html, api-keys.html, dashboard-weather.html,
+dashboard-plots.html, dashboard-team.html   CSR entry points
                             (built by Vite, see vite.config.js)
 src/pages/*.js             one file per CSR page above
 src/lib/                   i18n loader, API client (api.js), auth/session

@@ -18,6 +18,7 @@ CREATE SCHEMA IF NOT EXISTS core;
 CREATE SCHEMA IF NOT EXISTS jobs;
 CREATE SCHEMA IF NOT EXISTS plots;
 CREATE SCHEMA IF NOT EXISTS weather;
+CREATE SCHEMA IF NOT EXISTS personnel;
 
 -- =========================================================
 -- core.users — farmer accounts, shared by every product
@@ -254,6 +255,58 @@ CREATE TABLE weather.locations (
 );
 
 CREATE INDEX idx_weather_locations_farm ON weather.locations(farm_id);
+
+-- =========================================================
+-- personnel.people — farm staff (permanent or seasonal), deliberately
+-- its own entity rather than a role on core.users: most seasonal
+-- workers never need or want a login, so an account is optional
+-- (user_id nullable, linked at the farm manager's discretion later —
+-- no linking flow exists yet, this column just reserves the shape).
+-- role_title is free text, not a fixed enum: no agreed taxonomy of farm
+-- roles exists yet, and forcing one now would contradict the
+-- "rudimentary first" design mandate. status lets someone be archived
+-- (left a farm, season ended) without deleting history that future
+-- modules (Affectation, Pointage) will want to reference.
+-- =========================================================
+CREATE TABLE personnel.people (
+    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id         UUID NOT NULL REFERENCES core.farms(id) ON DELETE CASCADE,
+    user_id         UUID REFERENCES core.users(id) ON DELETE SET NULL,
+
+    first_name      VARCHAR(100) NOT NULL,
+    last_name       VARCHAR(100) NOT NULL,
+    role_title      VARCHAR(100),
+    email           VARCHAR(255),
+    phone           VARCHAR(20),
+
+    status          VARCHAR(20) NOT NULL DEFAULT 'active'
+                    CHECK (status IN ('active', 'inactive')),
+
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_personnel_people_farm ON personnel.people(farm_id);
+
+-- =========================================================
+-- personnel.teams / personnel.team_members — a person can belong to
+-- more than one team (e.g. a permanent-staff team and a harvest-season
+-- team), same many-to-many shape as core.users_farms.
+-- =========================================================
+CREATE TABLE personnel.teams (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    farm_id     UUID NOT NULL REFERENCES core.farms(id) ON DELETE CASCADE,
+    name        VARCHAR(100) NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_personnel_teams_farm ON personnel.teams(farm_id);
+
+CREATE TABLE personnel.team_members (
+    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    team_id     UUID NOT NULL REFERENCES personnel.teams(id) ON DELETE CASCADE,
+    person_id   UUID NOT NULL REFERENCES personnel.people(id) ON DELETE CASCADE,
+    UNIQUE (team_id, person_id)
+);
 
 -- =========================================================
 -- Future products plug into this SAME database, e.g.:
